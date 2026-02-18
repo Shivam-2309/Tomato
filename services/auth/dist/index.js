@@ -2,10 +2,12 @@ import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import authRoute from './routes/auth.js';
+import cors from 'cors';
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
+app.use(cors());
 // this middleware is redirecting every request of the form of /api/auth to authRoute this way the authRoute does not need to write it the way that
 // app.post('/api/auth/login')
 // app.post('/api/auth/hello') -> this way it is very messy
