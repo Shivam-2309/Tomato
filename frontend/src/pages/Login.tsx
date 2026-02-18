@@ -30,6 +30,10 @@ const Login = () => {
     }
   }
 
+  // login ka button dabate hi yeh function fire hua aur pop-up khula as a consent page
+  // usko OK krne ke baad agr sb theek hua to -> onSuccess callback fire hua
+  // usko ERR krne ke baad onError fire hua
+  // aur in sbka flow ek auth-flow h to vo agle parameter h mere constructuor ka 
   const googleLogin = useGoogleLogin({
     onSuccess: googleRes, 
     onError: googleRes,
