@@ -32,7 +32,7 @@ export const AppProvider = ({ children } : AppProviderProps) => {
             });
 
             console.log("data: ", data);
-            setUser(data.user);
+            setUser(data);
             setIsAuth(true);
         } catch(err) {
             console.log(err);

@@ -33,7 +33,7 @@ const SelectRole = () => {
   return (
     <div className="flex min-h-screen bg-white items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">
-          <h1 className="text-center text-2xl font-bold">Choose your Role</h1>
+          <h1 className="text-center text-lg font-bold bg-[#e23744] text-white rounded-md py-3">Choose your Role</h1>
           <div className="space-y-3">
             {
               roles.map((r) => {

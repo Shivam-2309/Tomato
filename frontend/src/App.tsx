@@ -7,6 +7,7 @@ import ProtectedRoute from './components/protectedRoute';
 import Home from './pages/Home';
 import SelectRole from './pages/SelectRole';
 import Navbar from './components/navbar';
+import Account from './pages/Account';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route element = {<ProtectedRoute/>}>
             <Route path = "/" element = {<Home />} />
             <Route path = "/select-role" element = {<SelectRole />} />
+            <Route path = "/account" element = {<Account />} />
           </Route>
         </Routes>
         <Toaster />
