@@ -23,6 +23,8 @@ export const AppProvider = ({ children } : AppProviderProps) => {
         try {
             const token = localStorage.getItem("token");
 
+            // this should not fire for the first time when the user is entering because initially the token is not set for sure
+            if(!token) throw new Error("token not yet recieved");
             const { data } = await axios.get(`${authService}/api/auth/me`, {
                 headers : {
                     Authorization : `Bearer ${token}`,
