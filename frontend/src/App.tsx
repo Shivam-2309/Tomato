@@ -6,7 +6,7 @@ import PublicRoute from './components/publicRoute';
 import ProtectedRoute from './components/protectedRoute';
 import Home from './pages/Home';
 import SelectRole from './pages/SelectRole';
-import Navbar from './components/navbar';
+import Navbar from './components/Navbar';
 import Account from './pages/Account';
 
 function App() {
