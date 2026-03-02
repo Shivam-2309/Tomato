@@ -1,9 +1,11 @@
 import express from "express";
 import connectDB from "./config/db.js";
 import dotenv from 'dotenv';
+import restaurantRoutes from './routes/restaurant.js';
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8080;
+app.use('/api/restaurant', restaurantRoutes);
 app.listen(PORT, () => {
     console.log(`Restaurant service is running on port ${PORT}`);
     connectDB();
