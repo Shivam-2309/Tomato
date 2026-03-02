@@ -31,12 +31,13 @@ export const addRestaurant = TryCatch(async (req, res) => {
         });
     }
     const fileBuffer = getBuffer(file);
+    // console.log("The curent file buffer is : ", fileBuffer);
     if (!fileBuffer) {
         res.status(500).json({
             message: "Failed to create file buffer",
         });
     }
-    const { data: uploadResult } = await axios.post(`${process.env.UTILS_SERVICE}`, {
+    const { data: uploadResult } = await axios.post(`${process.env.UTILS_SERVICE}/api/upload`, {
         buffer: fileBuffer.content,
     });
     const restaurant = await Restaurant.create({
@@ -50,9 +51,11 @@ export const addRestaurant = TryCatch(async (req, res) => {
             coordinates: [Number(longitude), Number(latitude)],
             formattedAddress,
         },
+        isVerified: false,
     });
     return res.status(201).json({
         message: "Restaurant created successfully",
+        restaurant
     });
 });
 export const fetchMyRestaurant = TryCatch(async (req, res) => {
@@ -63,7 +66,7 @@ export const fetchMyRestaurant = TryCatch(async (req, res) => {
     const restaurant = await Restaurant.findOne({ ownerId: req.user._id });
     if (!restaurant) {
         return res.status(401).json({
-            message: "Invalid user",
+            message: "No restaurant found",
         });
     }
     if (!req.user.restaurantId) {
@@ -73,7 +76,7 @@ export const fetchMyRestaurant = TryCatch(async (req, res) => {
                 restaurantId: restaurant._id,
             },
         }, process.env.JWT_SEC, {
-            expiresIn: "15",
+            expiresIn: "15d",
         });
         return res.json({ restaurant, token });
     }

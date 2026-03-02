@@ -1,6 +1,6 @@
 import User, { AuthenticatedRequest } from "../middlewares/isAuth.js";
 import TryCatch from "../middlewares/trycatch.js";
-import { response, Response } from "express";
+import { Response } from "express";
 import getBuffer from "../config/datauri.js";
 import axios from 'axios';
 import Restaurant from "../models/restaurant.js";
@@ -42,19 +42,18 @@ export const addRestaurant = TryCatch(async (req : AuthenticatedRequest, res : R
     }
 
     const fileBuffer = getBuffer(file);
+    // console.log("The curent file buffer is : ", fileBuffer);
 
     if(!fileBuffer){
         res.status(500).json({
             message: "Failed to create file buffer",
         });
     }
-
-    const { data : uploadResult } = await axios.post(`${process.env.UTILS_SERVICE}`,
+    const { data : uploadResult } = await axios.post(`${process.env.UTILS_SERVICE}/api/upload`,
         {
             buffer : fileBuffer.content,
         }
     );
-
     const restaurant = await Restaurant.create({
         name, 
         description,
@@ -66,10 +65,13 @@ export const addRestaurant = TryCatch(async (req : AuthenticatedRequest, res : R
             coordinates: [Number(longitude), Number(latitude)],
             formattedAddress,
         },
+        isVerified : false, 
     });
+
 
     return res.status(201).json({
         message : "Restaurant created successfully",
+        restaurant
     })
 
 });
@@ -84,7 +86,7 @@ export const fetchMyRestaurant = TryCatch(async (req : AuthenticatedRequest, res
 
     if(!restaurant){
         return res.status(401).json({
-            message: "Invalid user",
+            message: "No restaurant found",
         });
     }
 
@@ -98,7 +100,7 @@ export const fetchMyRestaurant = TryCatch(async (req : AuthenticatedRequest, res
             },
             process.env.JWT_SEC as string, 
             {
-                expiresIn : "15",
+                expiresIn : "15d",
             }
         );
 

@@ -23,3 +23,23 @@ export interface AppContextType {
     loadingLocation : boolean,
     city : string,
 };
+
+export interface IRestaurant {
+    _id : string, 
+    name : string, 
+    description?: string, 
+    image : string, 
+    ownerId : string, 
+    phone : number, 
+    isVerified : boolean,
+
+    autoLocation : {
+        // isme ek type h aur uska type h Point which is an Enum
+        type : "Point", 
+        coordinates : [number, number], 
+        formattedAddress : string, 
+    };
+
+    isOpen : boolean, 
+    createdAt : Date;
+};

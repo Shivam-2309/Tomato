@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post('/upload', async (req, res) => {
     try {
-        const { buffer } = req.body();
+        const { buffer } = req.body;
         const cloud = await cloudinary.v2.uploader.upload(buffer);
 
         res.json({
