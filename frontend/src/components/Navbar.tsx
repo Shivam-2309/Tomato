@@ -75,7 +75,7 @@ const Navbar = () => {
                     Account
                 </Link>
             ) : (
-                <Link to = "/Login" className='font-medium text-[#E23744]'>
+                <Link to = "/login" className='font-medium text-[#E23744]'>
                     Login
                 </Link>
             )}

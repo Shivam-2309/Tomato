@@ -8,6 +8,7 @@ export interface IUSER {
     email : string; 
     image : string; 
     role : string;
+    restaurantId : string;
 }
 
 // this tells that the schema is of the type USER -> checkedby typescript
