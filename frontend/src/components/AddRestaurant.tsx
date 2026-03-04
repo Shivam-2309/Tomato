@@ -4,7 +4,11 @@ import toast from "react-hot-toast";
 import { restaurantService } from "../main";
 import axios from 'axios'
 
-const AddRestaurant = () => {
+interface props {
+  fetchMyRestaurant : () => Promise<void>;
+}
+
+const AddRestaurant = ({ fetchMyRestaurant } : props) => {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [phone, setPhone] = useState("");
@@ -35,6 +39,9 @@ const AddRestaurant = () => {
                     Authorization : `Bearer ${localStorage.getItem("token")}`,
                 },
             });
+
+            toast.success("Restaurant is successfully added");
+            fetchMyRestaurant();
         }catch(err : any){
             toast.error(err.response.data.message);
         } finally{

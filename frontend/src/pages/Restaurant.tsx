@@ -20,6 +20,7 @@ const Restaurant = () => {
       
       if(data.token){
         localStorage.setItem("token", data.token);
+        window.location.reload();
       }
     } catch(err){
       console.log("The error is : ", err);
@@ -35,7 +36,7 @@ const Restaurant = () => {
                      </div>
 
   if(!restaurant){
-    return <AddRestaurant />
+    return <AddRestaurant fetchMyRestaurant={fetchMyRestaurant} />
   }               
 
   return (
