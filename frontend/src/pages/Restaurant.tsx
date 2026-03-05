@@ -3,6 +3,7 @@ import type { IRestaurant } from '../types';
 import axios from 'axios';
 import { restaurantService } from "../main";
 import AddRestaurant from "../components/AddRestaurant";
+import RestaurantProfile from "../components/RestaurantProfile";
 
 const Restaurant = () => {
   const [restaurant, setRestaurant] = useState<IRestaurant | null>(null);
@@ -40,7 +41,9 @@ const Restaurant = () => {
   }               
 
   return (
-    <div>Restaurant</div>
+    <div className="min-h-screen flex justify-center items-center bg-gray-50 px-4 py-6 space-y-6">
+      <RestaurantProfile restaurant={restaurant} isSeller={true} onUpdate={setRestaurant}/>
+    </div>
   )
 }
 
