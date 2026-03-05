@@ -67,7 +67,7 @@ const RestaurantProfile = ({ restaurant, isSeller, onUpdate }: props) => {
     }
 
     return (
-        <div className="w-3xl max-w-3xl rounded-xl bg-white shadow-sm overflow-hidden">
+        <div className="mx-auto min-w-3xl rounded-xl mg-5 bg-white shadow-sm overflow-hidden">
             {restaurant.image && (
                 <img
                     src={restaurant.image}
