@@ -45,6 +45,7 @@ export const addMenuItem = TryCatch(async (req : AuthenticatedRequest, res) => {
         price, 
         restaurantId : restaurant._id, 
         image: uploadResult.url,
+        isAvailable: true, 
     })
 
     return res.status(200).json({
@@ -60,11 +61,13 @@ export const getAllItems = TryCatch( async (req : AuthenticatedRequest, res) => 
         });
     };
 
+    console.log("getting all menu items");
+
     const { id } = req.params;
-    const items = MenuItem.find({restaurantId : id});
-    return res.status(200).json({
+    const items = await MenuItem.find({restaurantId : id});
+    return res.status(200).json(
         items, 
-    })
+    )
 });
 
 export const deleteMenuItem = TryCatch( async (req : AuthenticatedRequest, res) => {

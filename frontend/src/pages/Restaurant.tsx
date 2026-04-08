@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import type { IRestaurant } from '../types';
+import type { IMenuItem, IRestaurant } from '../types';
 import axios from 'axios';
 import { restaurantService } from "../main";
 import AddRestaurant from "../components/AddRestaurant";
 import RestaurantProfile from "../components/RestaurantProfile";
+import MenuItems from "../components/MenuItems";
+import AddMenuItem from "../components/AddMenuItem";
 
 type SellerTab = "menu" | "add-item" | "sales"; 
 
@@ -11,6 +13,7 @@ const Restaurant = () => {
   const [restaurant, setRestaurant] = useState<IRestaurant | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<SellerTab>("menu");
+  const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
 
   const fetchMyRestaurant = async () => {
     try {
@@ -32,9 +35,29 @@ const Restaurant = () => {
       setLoading(false);
     }
   }
+
+  const fetchMenuItems = async (restaurantId : string) => {
+    try { 
+      const { data } = await axios.get(`${restaurantService}/api/item/all/${restaurantId}`, {
+        headers : {
+          Authorization : `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      )
+
+      setMenuItems(data);
+    } catch(err) {
+      console.log("Error is : ", err);
+    }
+  }
   useEffect(() => {
         fetchMyRestaurant();
       }, []);
+
+  useEffect(() => {
+      if(restaurant?._id) fetchMenuItems(restaurant._id);
+  }, [restaurant]);
+
   if(loading) return <div className="flex min-h-screen justify-center items-center">
                         <p className="text-gray-500">Loading...</p>
                      </div>
@@ -68,9 +91,9 @@ const Restaurant = () => {
             </button>
           ))}
         </div>
-        <div className="p-5">
-          {tab === 'add-item' && <p>Add Items Page</p>}
-          {tab === 'menu' && <p>Menu Page</p>}
+        <div className="flex justify-center p-5">
+          {tab === 'add-item' && <AddMenuItem onItemsAdded={() => {}}/>}
+          {tab === 'menu' && <MenuItems />}
           {tab === 'sales' && <p>Sales Page</p>}
         </div>
       </div>
