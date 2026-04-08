@@ -50,7 +50,6 @@ export const getAllItems = TryCatch(async (req, res) => {
         });
     }
     ;
-    console.log("getting all menu items");
     const { id } = req.params;
     const items = await MenuItem.find({ restaurantId: id });
     return res.status(200).json(items);

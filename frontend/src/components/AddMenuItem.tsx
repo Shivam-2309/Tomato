@@ -40,8 +40,8 @@ const AddMenuItem = ({ onItemsAdded } : { onItemsAdded : () => void }) => {
             });
 
             toast.success("Item added successfully");
+            onItemsAdded();
             resetForm();    
-            
         } catch(err){
             console.log("The error is : ", err);
             toast.error("Failed to get item");

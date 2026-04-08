@@ -92,8 +92,12 @@ const Restaurant = () => {
           ))}
         </div>
         <div className="flex justify-center p-5">
-          {tab === 'add-item' && <AddMenuItem onItemsAdded={() => {}}/>}
-          {tab === 'menu' && <MenuItems />}
+          {tab === 'add-item' && <AddMenuItem onItemsAdded={() => fetchMenuItems(restaurant._id)}/>}
+          {tab === 'menu' && <MenuItems
+            items = {menuItems}
+            onItemDeleted = {() => fetchMenuItems(restaurant._id)}
+            isSeller = {true}
+          />}
           {tab === 'sales' && <p>Sales Page</p>}
         </div>
       </div>

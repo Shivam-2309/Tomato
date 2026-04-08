@@ -20,7 +20,6 @@ export default User;
 // this is a middleware which validated an isAuth functionality and then return a promise with no return value
 export const isAuth = async (req, res, next) => {
     try {
-        // 1:17:25
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             res.status(401).json({

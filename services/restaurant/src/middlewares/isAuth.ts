@@ -37,7 +37,6 @@ export interface AuthenticatedRequest extends Request {
 export const isAuth = async (req : AuthenticatedRequest, res : Response, next : NextFunction) :
 Promise<void> => {
     try {
-        // 1:17:25
         const authHeader = req.headers.authorization;
 
         if(!authHeader || !authHeader.startsWith("Bearer ")){
