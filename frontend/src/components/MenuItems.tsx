@@ -1,10 +1,12 @@
 import { useState } from "react";
 import type { IMenuItem } from "../types";
 import { FiEyeOff } from "react-icons/fi";
-import { BsEye } from "react-icons/bs";
+import { BsCartPlus, BsEye } from "react-icons/bs";
 import axios from "axios";
 import { restaurantService } from "../main";
 import toast from "react-hot-toast";
+import { VscLoading } from "react-icons/vsc";
+import { BiTrash } from "react-icons/bi";
 
 interface MenuItemsProps {
   items: IMenuItem[];
@@ -117,19 +119,31 @@ const MenuItems = ({ items, onItemDeleted, isSeller }: MenuItemsProps) => {
                     <button
                       disabled={isLoading}
                       onClick={() => handleDelete(item._id)}
-                      className="p-1 border rounded text-red-500"
+                      className="p-1 border  text-red-500 hover:bg-red-100"
                     >
-                      Delete
+                      <BiTrash size={18} />
                     </button>
                   </div>
                 )}
               </div>
             </div>
 
-            {isLoading && (
-              <div className="absolute inset-0 bg-white/60 flex items-center justify-center text-sm">
-                Processing...
-              </div>
+            {!isSeller && (
+              <button
+                disabled={!item.isAvailable || isLoading}
+                onClick={() => {}}
+                className={`flex items-center justify-center rounded-lg p-2 ${
+                  !item.isAvailable
+                    ? "cursor-not-allowed text-gray-400"
+                    : "text-red-500 hover:bg-red-50"
+                }`}
+              >
+                {isLoading ? (
+                  <VscLoading size={18} className="animate-spin" />
+                ) : (
+                  <BsCartPlus size={18} />
+                )}
+              </button>
             )}
           </div>
         );
