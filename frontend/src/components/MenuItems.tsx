@@ -20,12 +20,12 @@ const MenuItems = ({ items, onItemDeleted, isSeller }: MenuItemsProps) => {
 
       const { data } = await axios.put(
         `${restaurantService}/api/item/status/${itemId}`,
-        {}, 
+        {},
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
+        },
       );
 
       toast.success(data.message);
@@ -39,18 +39,18 @@ const MenuItems = ({ items, onItemDeleted, isSeller }: MenuItemsProps) => {
   };
 
   const handleDelete = async (id: string) => {
-    const confirm = window.confirm("Are you sure you want to delete this item ?");
-    if(!confirm) return;
+    const confirm = window.confirm(
+      "Are you sure you want to delete this item ?",
+    );
+    if (!confirm) return;
     try {
       setLoadingItemId(id);
 
-      const result = await axios.delete(`${restaurantService}/api/item/${id}`, 
-        {
-        headers : {
-          Authorization : `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const result = await axios.delete(`${restaurantService}/api/item/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       toast.success("Item has been deleted successfully");
       onItemDeleted();
     } catch (err) {
@@ -68,7 +68,7 @@ const MenuItems = ({ items, onItemDeleted, isSeller }: MenuItemsProps) => {
 
         return (
           <div
-            key={item._id} 
+            key={item._id}
             className={`relative flex gap-4 rounded-lg bg-white p-4 shadow-sm transition ${
               !item.isAvailable ? "opacity-70" : ""
             }`}
@@ -93,16 +93,12 @@ const MenuItems = ({ items, onItemDeleted, isSeller }: MenuItemsProps) => {
               <div>
                 <h3 className="font-semibold">{item.name}</h3>
                 {item.description && (
-                  <p className="text-sm text-gray-600">
-                    {item.description}
-                  </p>
+                  <p className="text-sm text-gray-600">{item.description}</p>
                 )}
               </div>
 
               <div>
-                <p className="font-medium">
-                  ₹ {item.price}
-                </p>
+                <p className="font-medium">₹ {item.price}</p>
 
                 {isSeller && (
                   <div className="mt-2 flex gap-2">

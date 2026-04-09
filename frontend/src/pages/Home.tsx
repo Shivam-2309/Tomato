@@ -64,7 +64,7 @@ const Home = () => {
     fetchRestaurants();
   }, [location, search]);
 
-  const skeletonCards = Array.from({ length: 6 });
+  const skeletonCards = Array.from({ length: 5 });
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "white" }}>
