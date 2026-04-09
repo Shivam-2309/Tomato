@@ -1,5 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
-;
+import mongoose, { Schema } from "mongoose";
 const schema = new Schema({
     name: {
         type: String,
@@ -36,12 +35,12 @@ const schema = new Schema({
         },
         formattedAddress: {
             type: String,
-        }
+        },
     },
     isOpen: {
         type: Boolean,
         default: false,
-    }
+    },
 }, {
     timestamps: true,
 });

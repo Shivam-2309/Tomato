@@ -2,225 +2,245 @@ import User, { AuthenticatedRequest } from "../middlewares/isAuth.js";
 import TryCatch from "../middlewares/trycatch.js";
 import { Response } from "express";
 import getBuffer from "../config/datauri.js";
-import axios from 'axios';
+import axios from "axios";
 import Restaurant from "../models/restaurant.js";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 import { isPromise } from "util/types";
 
-export const addRestaurant = TryCatch(async (req : AuthenticatedRequest, res : Response) => {
+export const addRestaurant = TryCatch(
+  async (req: AuthenticatedRequest, res: Response) => {
     const user = req.user;
 
-    if(!user) {
-        return res.status(401).json({
-            message: "Unauthorized",
-        })
+    if (!user) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
     }
 
     const existingRestaurant = await Restaurant.findOne({
-        ownerId : user?._id,
-    });    
+      ownerId: user?._id,
+    });
 
-    if(existingRestaurant){
-        return res.status(400).json({
-            message : "You already have your restaurant registered",
-        });
+    if (existingRestaurant) {
+      return res.status(400).json({
+        message: "You already have your restaurant registered",
+      });
     }
 
-    const { name, description, latitude, longitude, formattedAddress, phone } = req.body;
+    const { name, description, latitude, longitude, formattedAddress, phone } =
+      req.body;
 
-    if(!name || !latitude || !longitude){
-        return res.status(400).json({
-            message : "You need to give all the details",
-        });
+    if (!name || !latitude || !longitude) {
+      return res.status(400).json({
+        message: "You need to give all the details",
+      });
     }
 
     const file = req.file;
 
-    if(!file){
-        return res.status(400).json({
-            message : "Please give image",
-        });
+    if (!file) {
+      return res.status(400).json({
+        message: "Please give image",
+      });
     }
 
     const fileBuffer = getBuffer(file);
     // console.log("The curent file buffer is : ", fileBuffer);
 
-    if(!fileBuffer){
-        res.status(500).json({
-            message: "Failed to create file buffer",
-        });
+    if (!fileBuffer) {
+      res.status(500).json({
+        message: "Failed to create file buffer",
+      });
     }
-    const { data : uploadResult } = await axios.post(`${process.env.UTILS_SERVICE}/api/upload`,
-        {
-            buffer : fileBuffer.content,
-        }
+    const { data: uploadResult } = await axios.post(
+      `${process.env.UTILS_SERVICE}/api/upload`,
+      {
+        buffer: fileBuffer.content,
+      },
     );
     const restaurant = await Restaurant.create({
-        name, 
-        description,
-        phone,
-        image: uploadResult.url, 
-        ownerId: user._id,
-        autoLocation:{
-            type: "Point", 
-            coordinates: [Number(longitude), Number(latitude)],
-            formattedAddress,
-        },
-        isVerified : false, 
+      name,
+      description,
+      phone,
+      image: uploadResult.url,
+      ownerId: user._id,
+      autoLocation: {
+        type: "Point",
+        coordinates: [Number(longitude), Number(latitude)],
+        formattedAddress,
+      },
+      isVerified: false,
     });
-
 
     return res.status(201).json({
-        message : "Restaurant created successfully",
-        restaurant
-    })
-
-});
-
-
-export const fetchMyRestaurant = TryCatch(async (req : AuthenticatedRequest, res) => {
-    if(!req.user) return res.status(401).json({
-        message: "please login",
-    })
-
-    const restaurant = await Restaurant.findOne( { ownerId : req.user._id } );
-
-    if(!restaurant){
-        return res.status(401).json({
-            message: "No restaurant found",
-        });
-    }
-
-    if(!req.user.restaurantId){
-        const token = jwt.sign(
-            {
-                user: {
-                    ...req.user,
-                    restaurantId: restaurant._id,
-                },
-            },
-            process.env.JWT_SEC as string, 
-            {
-                expiresIn : "15d",
-            }
-        );
-
-        return res.json({ restaurant, token });
-    }
-
-    res.json( { restaurant });
-});
-
-export const updateStatusRestaurant = TryCatch(async (req : AuthenticatedRequest, res : Response) => {
-    if(!req.user) return res.status(401).json({
-        message: "please login",
+      message: "Restaurant created successfully",
+      restaurant,
     });
+  },
+);
+
+export const fetchMyRestaurant = TryCatch(
+  async (req: AuthenticatedRequest, res) => {
+    if (!req.user)
+      return res.status(401).json({
+        message: "please login",
+      });
+
+    const restaurant = await Restaurant.findOne({ ownerId: req.user._id });
+
+    if (!restaurant) {
+      return res.status(401).json({
+        message: "No restaurant found",
+      });
+    }
+
+    if (!req.user.restaurantId) {
+      const token = jwt.sign(
+        {
+          user: {
+            ...req.user,
+            restaurantId: restaurant._id,
+          },
+        },
+        process.env.JWT_SEC as string,
+        {
+          expiresIn: "15d",
+        },
+      );
+
+      return res.json({ restaurant, token });
+    }
+
+    res.json({ restaurant });
+  },
+);
+
+export const updateStatusRestaurant = TryCatch(
+  async (req: AuthenticatedRequest, res: Response) => {
+    if (!req.user)
+      return res.status(401).json({
+        message: "please login",
+      });
 
     const { status } = req.body;
 
-    if(typeof status !== 'boolean'){
-        return res.status(400).json({
-            message : "status must be of type boolean",
-        });
-    };
-
-    const restaurant = await Restaurant.findOneAndUpdate(
-        {ownerId : req.user._id},
-        {isOpen : status},
-        {new : true},
-    );
-
-    if(!restaurant){
-        return res.status(400).json({
-            message: "Restaurant not found",
-        });
-    };
-
-    return res.status(201).json({
-        message: "Restaurant successfully updated",
-        restaurant, 
-    })
-});
-
-export const updateRestaurant = async (req : AuthenticatedRequest, res : Response) => {
-    if(!req.user){
-        return res.status(400).json({
-            message : "Please Login",
-        });
+    if (typeof status !== "boolean") {
+      return res.status(400).json({
+        message: "status must be of type boolean",
+      });
     }
 
-    const { name, description } = req.body;
-
     const restaurant = await Restaurant.findOneAndUpdate(
-        {ownerId: req.user._id},
-        {name : name, description : description},
-        {new : true}, 
+      { ownerId: req.user._id },
+      { isOpen: status },
+      { new: true },
     );
 
-    if(!restaurant){
-        return res.status(400).json({
-            message: "Restaurant not found",
-        });
-    };
+    if (!restaurant) {
+      return res.status(400).json({
+        message: "Restaurant not found",
+      });
+    }
 
     return res.status(201).json({
-        message: "Restaurant successfully updated",
-        restaurant, 
-    })
+      message: "Restaurant successfully updated",
+      restaurant,
+    });
+  },
+);
+
+export const updateRestaurant = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  if (!req.user) {
+    return res.status(400).json({
+      message: "Please Login",
+    });
+  }
+
+  const { name, description } = req.body;
+
+  const restaurant = await Restaurant.findOneAndUpdate(
+    { ownerId: req.user._id },
+    { name: name, description: description },
+    { new: true },
+  );
+
+  if (!restaurant) {
+    return res.status(400).json({
+      message: "Restaurant not found",
+    });
+  }
+
+  return res.status(201).json({
+    message: "Restaurant successfully updated",
+    restaurant,
+  });
 };
 
-export const getNearbyRestaurant = TryCatch( async (req : AuthenticatedRequest, res : Response) => {
-    const { latitude, longitude, radius=5000, search = ""} = req.query;
+export const getNearbyRestaurant = TryCatch(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { latitude, longitude, radius = 5000, search = "" } = req.query;
+    console.log("Lat:", latitude);
+    console.log("Lon", longitude);
 
-    if(!latitude || !longitude) return res.status(400).json({
-        message : "Latitude and Longitude are required",
-    });
+    if (!latitude || !longitude)
+      return res.status(400).json({
+        message: "Latitude and Longitude are required",
+      });
 
     const query: any = {
-        isVerified : true, 
-    }
+      //   isVerified: true,
+    };
 
-    if(search && typeof search === "string"){
-        query.name = {$regex : search, $options: "i"};
+    if (search && typeof search === "string") {
+      query.name = { $regex: search, $options: "i" };
     }
 
     const restaurants = await Restaurant.aggregate([
-        {
-            $geoNear : {
-                near : {
-                    type : "Point", 
-                    coordinates : [Number(longitude), Number(latitude)],
-                },
-                distanceField: "distance",
-                maxDistance: Number(radius),
-                spherical : true,
-                query,
-            },
+      {
+        $geoNear: {
+          near: {
+            type: "Point",
+            coordinates: [Number(longitude), Number(latitude)],
+          },
+          distanceField: "distance",
+          maxDistance: Number(radius),
+          spherical: true,
+          query,
+          key: "autoLocation",
         },
-        {
-            $sort : {
-                isOpen : -1, 
-                distance : 1,
-            },
+      },
+      {
+        $sort: {
+          isOpen: -1,
+          distance: 1,
         },
-        {
-            $addFields : {
-                // for rounding off 
-                distanceKm : {
-                    $round : [{$divide : ["$distance", 1000]}, 2]
-                }
-            }
-        }
+      },
+      {
+        $addFields: {
+          // for rounding off
+          distanceKm: {
+            $round: [{ $divide: ["$distance", 1000] }, 2],
+          },
+        },
+      },
     ]);
 
-    res.json({
-        success : true, 
-        count : restaurants.length, 
-        restaurants, 
-    })
-});
+    console.log("Res: ", restaurants);
 
-export const fetchSingleRestaurant = TryCatch( async (req : AuthenticatedRequest, res : Response) => {
+    res.json({
+      success: true,
+      count: restaurants.length,
+      restaurants,
+    });
+  },
+);
+
+export const fetchSingleRestaurant = TryCatch(
+  async (req: AuthenticatedRequest, res: Response) => {
     const restaurant = await Restaurant.findById(req.params.id);
     res.json(restaurant);
-});
+  },
+);

@@ -1,8 +1,8 @@
 import TryCatch from "../middlewares/trycatch.js";
 import getBuffer from "../config/datauri.js";
-import axios from 'axios';
+import axios from "axios";
 import Restaurant from "../models/restaurant.js";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 export const addRestaurant = TryCatch(async (req, res) => {
     const user = req.user;
     if (!user) {
@@ -55,7 +55,7 @@ export const addRestaurant = TryCatch(async (req, res) => {
     });
     return res.status(201).json({
         message: "Restaurant created successfully",
-        restaurant
+        restaurant,
     });
 });
 export const fetchMyRestaurant = TryCatch(async (req, res) => {
@@ -88,19 +88,17 @@ export const updateStatusRestaurant = TryCatch(async (req, res) => {
             message: "please login",
         });
     const { status } = req.body;
-    if (typeof status !== 'boolean') {
+    if (typeof status !== "boolean") {
         return res.status(400).json({
             message: "status must be of type boolean",
         });
     }
-    ;
     const restaurant = await Restaurant.findOneAndUpdate({ ownerId: req.user._id }, { isOpen: status }, { new: true });
     if (!restaurant) {
         return res.status(400).json({
             message: "Restaurant not found",
         });
     }
-    ;
     return res.status(201).json({
         message: "Restaurant successfully updated",
         restaurant,
@@ -119,7 +117,6 @@ export const updateRestaurant = async (req, res) => {
             message: "Restaurant not found",
         });
     }
-    ;
     return res.status(201).json({
         message: "Restaurant successfully updated",
         restaurant,
@@ -127,12 +124,14 @@ export const updateRestaurant = async (req, res) => {
 };
 export const getNearbyRestaurant = TryCatch(async (req, res) => {
     const { latitude, longitude, radius = 5000, search = "" } = req.query;
+    console.log("Lat:", latitude);
+    console.log("Lon", longitude);
     if (!latitude || !longitude)
         return res.status(400).json({
             message: "Latitude and Longitude are required",
         });
     const query = {
-        isVerified: true,
+    //   isVerified: true,
     };
     if (search && typeof search === "string") {
         query.name = { $regex: search, $options: "i" };
@@ -148,6 +147,7 @@ export const getNearbyRestaurant = TryCatch(async (req, res) => {
                 maxDistance: Number(radius),
                 spherical: true,
                 query,
+                key: "autoLocation",
             },
         },
         {
@@ -158,13 +158,14 @@ export const getNearbyRestaurant = TryCatch(async (req, res) => {
         },
         {
             $addFields: {
-                // for rounding off 
+                // for rounding off
                 distanceKm: {
-                    $round: [{ $divide: ["$distance", 1000] }, 2]
-                }
-            }
-        }
+                    $round: [{ $divide: ["$distance", 1000] }, 2],
+                },
+            },
+        },
     ]);
+    console.log("Res: ", restaurants);
     res.json({
         success: true,
         count: restaurants.length,
