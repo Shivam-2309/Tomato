@@ -1,38 +1,39 @@
-import './App.css'
+import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Login from './pages/Login';
-import { Toaster } from 'react-hot-toast';
-import PublicRoute from './components/publicRoute';
-import ProtectedRoute from './components/protectedRoute';
-import Home from './pages/Home';
-import SelectRole from './pages/SelectRole';
-import Navbar from './components/Navbar';
-import Account from './pages/Account';
-import { useAppData } from './context/AppProvider';
-import Restaurant from './pages/Restaurant';
+import Login from "./pages/Login";
+import PublicRoute from "./components/publicRoute";
+import ProtectedRoute from "./components/protectedRoute";
+import Home from "./pages/Home";
+import SelectRole from "./pages/SelectRole";
+import Navbar from "./components/Navbar";
+import Account from "./pages/Account";
+import { useAppData } from "./context/AppProvider";
+import Restaurant from "./pages/Restaurant";
+import RestaurantPage from "./pages/RestaurantPage";
 
 function App() {
-  const {user} = useAppData();
-  if(user && user?.role === "Seller"){
-    return <Restaurant />
+  const { user } = useAppData();
+  if (user && user?.role === "Seller") {
+    return <Restaurant />;
   }
   return (
     <>
       <BrowserRouter>
         <Navbar />
         <Routes>
-          <Route element = {<PublicRoute/>}>
-            <Route path = "/login" element = {<Login />} />
+          <Route element={<PublicRoute />}>
+            <Route path="/login" element={<Login />} />
           </Route>
-          <Route element = {<ProtectedRoute/>}>
-            <Route path = "/" element = {<Home />} />
-            <Route path = "/select-role" element = {<SelectRole />} />
-            <Route path = "/account" element = {<Account />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/restaurant/:id" element={<RestaurantPage />} />
+            <Route path="/select-role" element={<SelectRole />} />
+            <Route path="/account" element={<Account />} />
           </Route>
         </Routes>
       </BrowserRouter>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
