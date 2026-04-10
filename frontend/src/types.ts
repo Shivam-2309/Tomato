@@ -1,57 +1,70 @@
 export interface User {
-    _id : string,
-    name : string, 
-    email : string, 
-    picture : string, 
-    role : string,
-};
+  _id: string;
+  name: string;
+  email: string;
+  picture: string;
+  role: string;
+}
 
-export interface LocationData{
-    latitude : number, 
-    longitude : number,
-    formattedAddress : string,
-};
+export interface LocationData {
+  latitude: number;
+  longitude: number;
+  formattedAddress: string;
+}
 
 export interface AppContextType {
-    user : User | null,
-    loading : Boolean,
-    isAuth : Boolean, 
-    setUser : React.Dispatch<React.SetStateAction<User | null>>,
-    setIsAuth : React.Dispatch<React.SetStateAction<boolean>>,
-    setLoading : React.Dispatch<React.SetStateAction<boolean>>,
-    location : LocationData | null,
-    loadingLocation : boolean,
-    city : string,
-};
+  user: User | null;
+  loading: Boolean;
+  isAuth: Boolean;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  location: LocationData | null;
+  loadingLocation: boolean;
+  city: string;
+  cart: ICart[] | null;
+  fetchCart: () => Promise<void>;
+  subTotal: number;
+  quantity: number;
+}
 
 export interface IRestaurant {
-    _id : string, 
-    name : string, 
-    description?: string, 
-    image : string, 
-    ownerId : string, 
-    phone : number, 
-    isVerified : boolean,
+  _id: string;
+  name: string;
+  description?: string;
+  image: string;
+  ownerId: string;
+  phone: number;
+  isVerified: boolean;
 
-    autoLocation : {
-        // isme ek type h aur uska type h Point which is an Enum
-        type : "Point", 
-        coordinates : [number, number], 
-        formattedAddress : string, 
-    };
+  autoLocation: {
+    // isme ek type h aur uska type h Point which is an Enum
+    type: "Point";
+    coordinates: [number, number];
+    formattedAddress: string;
+  };
 
-    isOpen : boolean, 
-    createdAt : Date;
-};
+  isOpen: boolean;
+  createdAt: Date;
+}
 
 export interface IMenuItem extends Document {
-    _id : string, 
-    restaurantId : string;
-    name : string;
-    description : string;
-    image?: string;
-    price: number;
-    isAvailable: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-};
+  _id: string;
+  restaurantId: string;
+  name: string;
+  description: string;
+  image?: string;
+  price: number;
+  isAvailable: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ICart {
+  userId: string;
+  restaurantId: string | IRestaurant;
+  itemId: string | IMenuItem;
+  quantity: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
