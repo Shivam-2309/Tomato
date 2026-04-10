@@ -14,7 +14,7 @@ const schema = new Schema({
     },
     itemId: {
         type: Schema.Types.ObjectId,
-        ref: "ItemId",
+        ref: "MenuItem",
         required: true,
         index: true,
     },

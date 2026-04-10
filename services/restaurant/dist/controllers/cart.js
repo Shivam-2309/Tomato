@@ -18,15 +18,14 @@ export const addToCart = TryCatch(async (req, res) => {
     // vo saari cart le aao jinka bhi userId h aur restaurantId not equal to a restaurantId
     const cartFromDifferentRestaurant = await cart.findOne({
         userId,
-        restaurtantId: { $ne: restaurantId },
     });
-    if (cartFromDifferentRestaurant) {
-        res.status(400).json({
+    if (cartFromDifferentRestaurant?.restaurantId.toString() !== restaurantId) {
+        return res.status(400).json({
             message: "You can order from one restaurant at a time only. Please clear your cart to add items from this restaurant",
         });
     }
     const cartItem = await cart.findOneAndUpdate({ userId, restaurantId, itemId }, {
-        $inc: { quanitity: 1 },
+        $inc: { quantity: 1 },
         $setOnInsert: { userId, restaurantId, itemId },
     }, { upsert: true, new: true, setDefaultsOnInsert: true });
     return res.status(200).json({
@@ -47,13 +46,16 @@ export const fetchMyCart = TryCatch(async (req, res) => {
         .populate("restaurantId");
     // without populate, the cart item was having a reference the the user and the restaurant it has in the form of its object Id
     // but now it has the whole document and not just the object Id
+    // console.log("Cart items: ", cartItems);
     let subTotal = 0;
     let totalQuantity = 0;
     for (const cartItem of cartItems) {
         const item = cartItem.itemId;
-        subTotal += item.price * item.quanitity;
-        totalQuantity += item.quanitity;
+        subTotal += item.price * cartItem.quantity;
+        totalQuantity += cartItem.quantity;
     }
+    // console.log("SubTotal: ", subTotal);
+    // console.log("totalQuantity", totalQuantity);
     return res.json({
         success: true,
         totalQuantity,
