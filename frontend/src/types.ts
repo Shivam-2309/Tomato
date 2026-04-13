@@ -68,3 +68,19 @@ export interface ICart {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IAddress {
+  _id: string;
+  mobile: string;
+  formattedAddress: string;
+  location: {
+    type: "Point";
+    coordinates: [number, number];
+  };
+  createdAt: string;
+}
+
+export interface ILatLng {
+  lat: number;
+  lng: number;
+}
