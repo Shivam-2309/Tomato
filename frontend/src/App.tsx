@@ -12,6 +12,7 @@ import Restaurant from "./pages/Restaurant";
 import RestaurantPage from "./pages/RestaurantPage";
 import Cart from "./pages/Cart";
 import Address from "./pages/Address";
+import { Checkout } from "./pages/Checkout";
 
 function App() {
   const { user } = useAppData();
@@ -31,6 +32,7 @@ function App() {
             <Route path="/restaurant/:id" element={<RestaurantPage />} />
             <Route path="/addresses" element={<Address />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/select-role" element={<SelectRole />} />
             <Route path="/account" element={<Account />} />
           </Route>
