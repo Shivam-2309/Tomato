@@ -6,8 +6,6 @@ import AddRestaurant from "../components/AddRestaurant";
 import RestaurantProfile from "../components/RestaurantProfile";
 import MenuItems from "../components/MenuItems";
 import AddMenuItem from "../components/AddMenuItem";
-import toast from "react-hot-toast";
-import { useAppData } from "../context/AppProvider";
 
 type SellerTab = "menu" | "add-item" | "sales";
 

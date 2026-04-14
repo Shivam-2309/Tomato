@@ -19,7 +19,7 @@ const RestaurantProfile = ({ restaurant, isSeller, onUpdate }: props) => {
   const [isOpen, setIsOpen] = useState(restaurant.isOpen);
   const [loading, setLoading] = useState(false);
 
-  const { setIsAuth, user, setUser } = useAppData();
+  const { setIsAuth, setUser } = useAppData();
   const logoutHandler = () => {
     localStorage.setItem("token", "");
     setIsAuth(false);

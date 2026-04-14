@@ -203,12 +203,13 @@ const Home = () => {
                       overflow: "hidden",
                       position: "relative",
                     }}
+                    className={`${restaurant.isOpen ? "" : "opacity-25"}`}
                   >
                     {restaurant.image ? (
                       <img
                         src={restaurant.image}
                         alt={restaurant.name}
-                        className={`w-100 h-100 ${restaurant.isOpen ? "" : "opacity-1"}`}
+                        className={`w-100 h-100`}
                       />
                     ) : (
                       <div
