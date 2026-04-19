@@ -21,7 +21,7 @@ export interface IOrder extends Document {
   platformFee: number;
   totalAmount: number;
 
-  address: string;
+  addressId: string;
   deliveryAddress: {
     formattedAddress: string;
     mobile: number;
@@ -47,4 +47,104 @@ export interface IOrder extends Document {
   updatedAt: Date;
 }
 
-const OrderSchema = new Schema<IOrder>();
+const OrderSchema = new Schema<IOrder>(
+  {
+    userId: {
+      type: String,
+      required: true,
+    },
+    restaurantId: {
+      type: String,
+      required: true,
+    },
+    restaurantName: {
+      type: String,
+      required: true,
+    },
+    riderId: {
+      type: String,
+      default: null,
+    },
+    riderPhone: {
+      type: Number,
+      default: null,
+    },
+    riderName: {
+      type: String,
+      default: null,
+    },
+    riderAmount: {
+      type: Number,
+      required: true,
+    },
+    distance: {
+      type: Number,
+      required: true,
+    },
+
+    items: [
+      {
+        itemId: String,
+        name: String,
+        price: Number,
+        quantity: Number,
+      },
+    ],
+
+    subTotal: Number,
+    deliveryFee: Number,
+    platformFee: Number,
+    totalAmount: Number,
+
+    addressId: {
+      type: String,
+      required: true,
+    },
+
+    deliveryAddress: {
+      formattedAddress: { type: String, required: true },
+      mobile: { type: Number, required: true },
+      latitude: Number,
+      longitude: Number,
+    },
+
+    status: {
+      type: String,
+      enum: [
+        "placed",
+        "accepted",
+        "preparing",
+        "ready_for_rider",
+        "rider_assgined",
+        "picked_up",
+        "delivered",
+        "cancelled",
+      ],
+      default: "placed",
+    },
+
+    paymentMethod: {
+      type: String,
+      enum: ["razorpay", "stripe"],
+      required: true,
+    },
+
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "paid", "failed"],
+      default: "pending",
+    },
+
+    expiresAt: {
+      type: Date,
+      index: { expireAfterSeconds: 0 },
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
+
+// mongoose.model() registers a mongoose schema in a mongoose library which acts as an interface for DB operationsl ike -> create, find etc.
+// compiles OrderSchema into a reusable mongoose model named Order
+export default mongoose.model<IOrder>("Order", OrderSchema);
