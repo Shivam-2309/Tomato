@@ -147,3 +147,27 @@ export const createOrder = TryCatch(async (req: AuthenticatedRequest, res) => {
     order,
   });
 });
+
+export const fetchOrderForPayment = TryCatch(async (req, res) => {
+  if (req.headers["x-internal-key"] !== process.env.INTERNAL_SERVICE_KEY) {
+    return res.status(403).json({
+      message: "forbidden",
+    });
+  }
+  const order = await Order.findById(req.params.id);
+  if (!order) {
+    return res.status(400).json({ message: "No Order Found" });
+  }
+
+  if (order.paymentStatus !== "pending") {
+    return res.status(200).json({
+      message: "Order is Paid already",
+    });
+  }
+
+  res.json({
+    orderId: order._id,
+    amount: order.totalAmount,
+    currency: "INR",
+  });
+});
