@@ -32,15 +32,6 @@ export const createOrder = TryCatch(async (req: AuthenticatedRequest, res) => {
     });
   }
 
-  // optional validation
-  const validPaymentMethods = ["COD", "ONLINE"];
-
-  if (!validPaymentMethods.includes(paymentMethod)) {
-    return res.status(400).json({
-      message: "Invalid payment method",
-    });
-  }
-
   const address = await Address.findOne({
     _id: addressId,
     userId: user._id,
