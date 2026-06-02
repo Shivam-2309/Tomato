@@ -7,6 +7,26 @@ import { IMenuItem } from "../models/menuitems.js";
 import Order from "../models/Order.js";
 import Restaurant, { IRestaurant } from "../models/restaurant.js";
 
+const getDistanceKm = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number => {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
 export const createOrder = TryCatch(async (req: AuthenticatedRequest, res) => {
   const DELIVERY_FEE = 30;
 
@@ -18,7 +38,7 @@ export const createOrder = TryCatch(async (req: AuthenticatedRequest, res) => {
     });
   }
 
-  const { paymentMethod, addressId, distance } = req.body;
+  const { paymentMethod, addressId } = req.body;
 
   if (!addressId) {
     return res.status(400).json({
@@ -79,6 +99,13 @@ export const createOrder = TryCatch(async (req: AuthenticatedRequest, res) => {
       message: "Restaurant is currently closed",
     });
   }
+
+  const distance = getDistanceKm(
+    address.location.coordinates[1],
+    address.location.coordinates[0],
+    restaurant.autoLocation.coordinates[1],
+    restaurant.autoLocation.coordinates[0],
+  );
 
   let subTotal = 0;
 
@@ -143,8 +170,7 @@ export const createOrder = TryCatch(async (req: AuthenticatedRequest, res) => {
   return res.status(201).json({
     message: "Order created successfully",
     orderId: order._id.toString(),
-    totalAmount,
-    order,
+    amount: totalAmount,
   });
 });
 
