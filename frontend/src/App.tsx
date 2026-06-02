@@ -13,6 +13,7 @@ import RestaurantPage from "./pages/RestaurantPage";
 import Cart from "./pages/Cart";
 import Address from "./pages/Address";
 import { Checkout } from "./pages/Checkout";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 function App() {
   const { user } = useAppData();
@@ -30,6 +31,10 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Home />} />
             <Route path="/restaurant/:id" element={<RestaurantPage />} />
+            <Route
+              path="/paymentsuccess/:paymentId"
+              element={<PaymentSuccess />}
+            />
             <Route path="/addresses" element={<Address />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />

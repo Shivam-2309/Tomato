@@ -15,30 +15,13 @@ interface Address {
 // Mirrors the ICart mongoose schema.
 // userId stays as a raw ObjectId string (we never display it).
 // restaurantId and itemId are populated refs — their types reflect
-// the actual document shape returned after .populate().
-interface PopulatedMenuItem {
-  _id: string;
-  name: string;
-  price: number;
-  image?: string;
-}
-
-interface CartItem {
-  _id: string;
-  userId: string; // ObjectId string, unpopulated
-  restaurantId: IRestaurant; // populated: ref "Restaurant"
-  itemId: PopulatedMenuItem; // populated: ref "MenuItem"
-  quantity: number; // min: 1
-  createdAt: string;
-  updatedAt: string;
-}
-
+// the actual document shape returned after .populate()
 const PLATFORM_FEE_RATE = 0.08;
 const DELIVERY_FEE = 30;
 const FREE_DELIVERY_THRESHOLD = 149;
 
 export const Checkout = () => {
-  const { cart, subTotal, quantity, fetchCart } = useAppData();
+  const { cart, subTotal, quantity } = useAppData();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null,
@@ -147,7 +130,6 @@ export const Checkout = () => {
             });
             toast.success("Payment successful 🎉");
             navigate("/paymentsuccess/" + response.razorpay_payment_id);
-            fetchCart();
           } catch {
             toast.error("Payment verification failed");
           }
