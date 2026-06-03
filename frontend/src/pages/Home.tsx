@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import type { IRestaurant } from "../types";
 import axios from "axios";
 import { restaurantService } from "../main";
+import { BiSolidMessageRoundedMinus } from "react-icons/bi";
 
 const Home = () => {
   const { location } = useAppData();
@@ -13,6 +14,39 @@ const Home = () => {
   const [restaurants, setRestaurants] = useState<IRestaurant[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleLike = async (e: React.MouseEvent, restaurantId: string) => {
+    e.stopPropagation(); // prevent card navigation
+
+    try {
+      const { data } = await axios.post(
+        `${restaurantService}/api/restaurant/${restaurantId}/like`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
+      console.log("Data: ", data);
+
+      setRestaurants((prev) =>
+        prev.map((r) =>
+          String(r._id) === String(restaurantId)
+            ? {
+                ...r,
+                likesCount:
+                  data.likesCount ??
+                  data.restaurant?.likesCount ??
+                  r.likesCount + 1,
+              }
+            : r,
+        ),
+      );
+    } catch (err) {
+      console.log("Like error:", err);
+    }
+  };
   const getDistanceKm = (
     lat1: number,
     lon1: number,
@@ -175,167 +209,99 @@ const Home = () => {
                 <div
                   key={String(restaurant._id)}
                   onClick={() => navigate(`/restaurant/${restaurant._id}`)}
-                  style={{
-                    backgroundColor: "#fff",
-                    borderRadius: "12px",
-                    border: "6px solid #fcd5d5",
-                    overflow: "hidden",
-                    cursor: "pointer",
-                    transition: "transform 0.15s ease, box-shadow 0.15s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.transform =
-                      "translateY(-3px)";
-                    (e.currentTarget as HTMLDivElement).style.boxShadow =
-                      "0 6px 20px rgba(192,57,43,0.12)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.transform =
-                      "translateY(0)";
-                    (e.currentTarget as HTMLDivElement).style.boxShadow =
-                      "none";
-                  }}
+                  className="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 flex flex-col h-full"
                 >
-                  <div
-                    style={{
-                      height: "160px",
-                      backgroundColor: "#fce8e8",
-                      overflow: "hidden",
-                      position: "relative",
-                    }}
-                    className={`${restaurant.isOpen ? "" : "opacity-25"}`}
-                  >
+                  {/* Image Container */}
+                  <div className="relative h-44 w-full overflow-hidden bg-gray-100">
                     {restaurant.image ? (
                       <img
                         src={restaurant.image}
                         alt={restaurant.name}
-                        className={`w-100 h-100`}
+                        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
+                          !restaurant.isOpen && "grayscale opacity-60"
+                        }`}
                       />
                     ) : (
-                      <div
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "36px",
-                        }}
-                      >
+                      <div className="w-full h-full flex items-center justify-center text-4xl bg-rose-50">
                         🍴
                       </div>
                     )}
 
-                    {/* Open / Closed badge */}
-                    <span
-                      style={{
-                        position: "absolute",
-                        top: "10px",
-                        right: "10px",
-                        fontSize: "11px",
-                        fontWeight: 500,
-                        padding: "3px 10px",
-                        borderRadius: "20px",
-                        backgroundColor: restaurant.isOpen
-                          ? "#e8f8ef"
-                          : "#fce8e8",
-                        color: restaurant.isOpen ? "#1e7e45" : "#c0392b",
-                      }}
-                    >
-                      {restaurant.isOpen ? "Open" : "Closed"}
-                    </span>
+                    {/* Top Badges Overlay */}
+                    <div className="absolute top-3 left-3 flex flex-col gap-2">
+                      {restaurant.isVerified && (
+                        <span className="bg-white/90 backdrop-blur-sm text-orange-600 text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded-md shadow-sm">
+                          ✓ Verified
+                        </span>
+                      )}
+                    </div>
 
-                    {/* Verified badge */}
-                    {restaurant.isVerified && (
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: "10px",
-                          left: "10px",
-                          fontSize: "11px",
-                          fontWeight: 500,
-                          padding: "3px 10px",
-                          borderRadius: "20px",
-                          backgroundColor: "#fff3e0",
-                          color: "#e65100",
-                        }}
-                      >
-                        ✓ Verified
-                      </span>
+                    {/* Like Button - Positioned Top Right for a "clean" feel */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent card click
+                        handleLike(e, String(restaurant._id));
+                      }}
+                      className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-md rounded-full shadow-md hover:bg-white transition-colors group/like"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span className="text-red-500 group-active/like:scale-125 transition-transform">
+                          ❤️
+                        </span>
+                        <span className="text-xs font-bold text-gray-700">
+                          {restaurant.likesCount ?? 0}
+                        </span>
+                      </div>
+                    </button>
+
+                    {/* Open/Closed Overlay for Closed Restaurants */}
+                    {!restaurant.isOpen && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <span className="bg-white px-4 py-1 rounded-full text-sm text-gray-900 shadow-lg">
+                          Closed
+                        </span>
+                      </div>
                     )}
                   </div>
 
-                  {/* Info */}
-                  <div style={{ padding: "14px 16px 16px" }}>
-                    <h3
-                      style={{
-                        margin: "0 0 4px",
-                        fontSize: "15px",
-                        fontWeight: 500,
-                        color: "#1a1a1a",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {restaurant.name}
-                    </h3>
+                  {/* Info Section */}
+                  <div className="p-4 flex flex-col grow">
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className="text-md font-bold text-gray-900 truncate pr-2">
+                        {restaurant.name}
+                      </h3>
+                      {distance && (
+                        <span className="shrink-0 text-xs font-semibold text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">
+                          {distance} km
+                        </span>
+                      )}
+                    </div>
 
                     {restaurant.description && (
-                      <p
-                        style={{
-                          margin: "0 0 8px",
-                          fontSize: "13px",
-                          color: "#888",
-                          overflow: "hidden",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                        }}
-                      >
+                      <p className="text-sm text-gray-500 line-clamp-1 mb-2">
                         {restaurant.description}
                       </p>
                     )}
 
                     {restaurant.autoLocation?.formattedAddress && (
-                      <p
-                        style={{
-                          margin: "0 0 10px",
-                          fontSize: "12px",
-                          color: "#aaa",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        📍 {restaurant.autoLocation.formattedAddress}
-                      </p>
+                      <div className="flex items-center gap-1 text-xs text-gray-400 mb-3">
+                        <span className="truncate shrink">
+                          📍 {restaurant.autoLocation.formattedAddress}
+                        </span>
+                      </div>
                     )}
 
-                    {/* Footer Row */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        marginTop: "8px",
-                        paddingTop: "10px",
-                        borderTop: "1px solid #fce8e8",
-                      }}
-                    >
-                      <span style={{ fontSize: "13px", color: "#888" }}>
-                        📞 {restaurant.phone}
+                    {/* Card Footer */}
+                    <div className="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between text-xs font-medium text-gray-600">
+                      <span className="flex items-center gap-1">
+                        <span className="text-gray-400">📞</span>{" "}
+                        {restaurant.phone}
                       </span>
 
-                      {distance && (
-                        <span
-                          style={{
-                            fontSize: "12px",
-                            color: "#c0392b",
-                            fontWeight: 500,
-                          }}
-                        >
-                          {distance} km away
+                      {restaurant.isOpen && (
+                        <span className="flex items-center gap-1 text-green-600">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                          Open Now
                         </span>
                       )}
                     </div>

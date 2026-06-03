@@ -36,6 +36,7 @@ export interface IRestaurant {
   ownerId: string;
   phone: number;
   isVerified: boolean;
+  likesCount: number;
 
   autoLocation: {
     // isme ek type h aur uska type h Point which is an Enum

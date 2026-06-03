@@ -22,6 +22,10 @@ const schema = new Schema({
         type: Boolean,
         required: true,
     },
+    likesCount: {
+        type: Number,
+        default: 0,
+    },
     autoLocation: {
         type: {
             type: String,

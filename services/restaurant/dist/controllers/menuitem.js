@@ -9,7 +9,6 @@ export const addMenuItem = TryCatch(async (req, res) => {
             message: "Please login",
         });
     }
-    ;
     const restaurant = await Restaurant.findOne({ ownerId: req.user._id });
     if (!restaurant)
         return res.status(404).json({ message: "No restaurant found" });
@@ -19,7 +18,6 @@ export const addMenuItem = TryCatch(async (req, res) => {
             message: "Name and Price are required",
         });
     }
-    ;
     const file = req.file;
     const fileBuffer = getBuffer(file);
     if (!fileBuffer) {
@@ -49,7 +47,6 @@ export const getAllItems = TryCatch(async (req, res) => {
             message: "Please Provide a correct Restaurant Id",
         });
     }
-    ;
     const { id } = req.params;
     const items = await MenuItem.find({ restaurantId: id });
     return res.status(200).json(items);
@@ -60,21 +57,18 @@ export const deleteMenuItem = TryCatch(async (req, res) => {
             message: "Please login",
         });
     }
-    ;
     const { itemId } = req.params;
     if (!itemId) {
         return res.status(400).json({
             message: "Item Id is required",
         });
     }
-    ;
     const item = await MenuItem.findById(itemId);
     if (!item) {
         return res.status(400).json({
             message: "Not foud any item with this item id",
         });
     }
-    ;
     // kya vo vhi restaurant h jiska item mne select kra h ?
     // vo check hua user ki owner id se right ?
     const restaurant = await Restaurant.findOne({
@@ -86,7 +80,6 @@ export const deleteMenuItem = TryCatch(async (req, res) => {
             message: "No Restaurant found",
         });
     }
-    ;
     await item.deleteOne();
     return res.status(200).json({
         message: "The item has been deleted successfully",
@@ -98,21 +91,18 @@ export const toggleMenuItemAvailability = TryCatch(async (req, res) => {
             message: "Please login",
         });
     }
-    ;
     const { itemId } = req.params;
     if (!itemId) {
         return res.status(400).json({
             message: "Item Id is required",
         });
     }
-    ;
     const item = await MenuItem.findById(itemId);
     if (!item) {
         return res.status(400).json({
             message: "Not foud any item with this item id",
         });
     }
-    ;
     // kya vo vhi restaurant h jiska item mne select kra h ?
     // vo check hua user ki owner id se right ?
     const restaurant = await Restaurant.findOne({
@@ -124,7 +114,6 @@ export const toggleMenuItemAvailability = TryCatch(async (req, res) => {
             message: "No Restaurant found",
         });
     }
-    ;
     item.isAvailable = !item.isAvailable;
     await item.save();
     return res.status(200).json({

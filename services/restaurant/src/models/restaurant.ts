@@ -7,6 +7,7 @@ export interface IRestaurant extends Document {
   ownerId: string;
   phone: number;
   isVerified: boolean;
+  likesCount: number;
 
   autoLocation: {
     // isme ek type h aur uska type h Point which is an Enum
@@ -42,6 +43,10 @@ const schema = new Schema<IRestaurant>(
     isVerified: {
       type: Boolean,
       required: true,
+    },
+    likesCount: {
+      type: Number,
+      default: 0,
     },
     autoLocation: {
       type: {
