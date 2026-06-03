@@ -10,6 +10,7 @@ import Account from "./pages/Account";
 import { useAppData } from "./context/AppProvider";
 import Restaurant from "./pages/Restaurant";
 import RestaurantPage from "./pages/RestaurantPage";
+import LikedRestaurants from "./pages/LikedRestaurants";
 import Cart from "./pages/Cart";
 import Address from "./pages/Address";
 import { Checkout } from "./pages/Checkout";
@@ -36,6 +37,7 @@ function App() {
               element={<PaymentSuccess />}
             />
             <Route path="/addresses" element={<Address />} />
+            <Route path="/likedRestaurants" element={<LikedRestaurants />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/select-role" element={<SelectRole />} />

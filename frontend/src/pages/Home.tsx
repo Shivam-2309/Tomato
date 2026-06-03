@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import type { IRestaurant } from "../types";
 import axios from "axios";
 import { restaurantService } from "../main";
-import { BiSolidMessageRoundedMinus } from "react-icons/bi";
 
 const Home = () => {
   const { location } = useAppData();

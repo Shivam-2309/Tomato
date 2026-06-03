@@ -7,6 +7,7 @@ import {
   getNearbyRestaurant,
   updateRestaurant,
   updateStatusRestaurant,
+  fetchLikedRestaurant,
 } from "../controllers/restaurant.js";
 import uploadFile from "../middlewares/multer.js";
 import { updateRestaurantLikeCount } from "../controllers/restaurantLike.js";
@@ -17,6 +18,7 @@ router.get("/my", isAuth, isSeller, fetchMyRestaurant);
 router.put("/status", isAuth, isSeller, updateStatusRestaurant);
 router.put("/edit", isAuth, isSeller, updateRestaurant);
 router.get("/all", isAuth, getNearbyRestaurant);
+router.get("/likedRestaurant", isAuth, fetchLikedRestaurant);
 router.get("/:id", isAuth, fetchSingleRestaurant);
 router.post("/:restaurantId/like", isAuth, updateRestaurantLikeCount);
 export default router;

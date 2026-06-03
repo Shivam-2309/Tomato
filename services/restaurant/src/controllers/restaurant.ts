@@ -6,6 +6,8 @@ import axios from "axios";
 import Restaurant from "../models/restaurant.js";
 import jwt from "jsonwebtoken";
 import { isPromise } from "util/types";
+import { Resolver } from "dns/promises";
+import RestaurantLikes from "../models/RestaurantLikes.js";
 
 export const addRestaurant = TryCatch(
   async (req: AuthenticatedRequest, res: Response) => {
@@ -182,8 +184,6 @@ export const updateRestaurant = async (
 export const getNearbyRestaurant = TryCatch(
   async (req: AuthenticatedRequest, res: Response) => {
     const { latitude, longitude, radius = 150000, search = "" } = req.query;
-    console.log("Lat:", latitude);
-    console.log("Lon", longitude);
 
     if (!latitude || !longitude)
       return res.status(400).json({
@@ -242,5 +242,25 @@ export const fetchSingleRestaurant = TryCatch(
   async (req: AuthenticatedRequest, res: Response) => {
     const restaurant = await Restaurant.findById(req.params.id);
     res.json(restaurant);
+  },
+);
+
+export const fetchLikedRestaurant = TryCatch(
+  async (req: AuthenticatedRequest, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({
+        message: "Authentication is Required",
+      });
+    }
+    const userId = req.user._id;
+
+    const likedRestaurants = await RestaurantLikes.find({
+      userId,
+    }).populate("restaurantId");
+
+    return res.status(200).json({
+      success: true,
+      restaurants: likedRestaurants.map((like) => like.restaurantId),
+    });
   },
 );
