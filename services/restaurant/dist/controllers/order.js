@@ -3,6 +3,7 @@ import Address from "../models/Address.js";
 import cart from "../models/cart.js";
 import Order from "../models/Order.js";
 import Restaurant from "../models/restaurant.js";
+import axios from "axios";
 const getDistanceKm = (lat1, lon1, lat2, lon2) => {
     const toRad = (deg) => (deg * Math.PI) / 180;
     const R = 6371;
@@ -148,4 +149,84 @@ export const fetchOrderForPayment = TryCatch(async (req, res) => {
         amount: order.totalAmount,
         currency: "INR",
     });
+});
+export const fetchRestaurantOrders = TryCatch(async (req, res) => {
+    const user = req.user;
+    const { restaurantId } = req.params;
+    if (!user) {
+        return res.status(401).json({
+            message: "Unautheorized",
+        });
+    }
+    if (!restaurantId) {
+        return res.status(400).json({
+            message: "Restaurant id is required",
+        });
+    }
+    const limit = req.query.limit ? Number(req.query.limit) : 0;
+    const orders = await Order.find({
+        restaurantId,
+        paymentStatus: "paid",
+    })
+        .sort({ createdAt: -1 })
+        .limit(limit);
+    return res.json({
+        success: true,
+        count: orders.length,
+        orders,
+    });
+});
+const ALLOWED_STATUSES = ["accepted", "preparing", "ready_for_rider"];
+export const updateOrderStatus = TryCatch(async (req, res) => {
+    const user = req.user;
+    const { orderId } = req.params;
+    const { status } = req.body;
+    if (!user) {
+        return res.status(401).json({
+            message: "Unautheorized",
+        });
+    }
+    if (!ALLOWED_STATUSES.includes(status)) {
+        return res.status(400).json({
+            message: "Invalid order status",
+        });
+    }
+    const order = await Order.findById(orderId);
+    if (!order) {
+        return res.status(404).json({
+            message: "Order not found",
+        });
+    }
+    if (order.paymentStatus !== "paid") {
+        return res.status(404).json({
+            message: "Order not completed",
+        });
+    }
+    const restaurant = await Restaurant.findById(order.restaurantId);
+    if (!restaurant) {
+        return res.status(404).json({
+            message: "Restaurant not found",
+        });
+    }
+    if (restaurant.ownerId !== user._id.toString()) {
+        return res.status(401).json({
+            message: "You are not allowed to update this order",
+        });
+    }
+    order.status = status;
+    await order.save();
+    await axios.post(`${process.env.REALTIME_SERVICE}/api/v1/internal/emit`, {
+        event: "order:update",
+        room: `user:${order.userId}`,
+        payload: {
+            orderId: order._id,
+            status: order.status,
+        },
+    }, {
+        headers: {
+            "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
+        },
+    });
+    // hr rider ko bhejdo
+    res.json({ message: "Order completed successfully", order });
 });
