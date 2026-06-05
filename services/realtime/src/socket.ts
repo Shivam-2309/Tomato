@@ -94,6 +94,8 @@ export const initSocket = (server: http.Server) => {
       return;
     }
 
+    console.log("SocketId: ", socket.id);
+
     const userId = user._id;
     // this is creating a room of user
     socket.join(`user:${userId}`);
