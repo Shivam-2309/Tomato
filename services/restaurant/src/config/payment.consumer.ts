@@ -44,7 +44,7 @@ export const startPaymentConsumer = async () => {
       // socket work to tell restaurant that the order is placed
 
       await axios.post(
-        `${process.env.REALTIME_SERVICE}/api/v1/internal/emit`,
+        `http://localhost:${process.env.REALTIME_SERVICE}/api/v1/internal/emit`,
         {
           event: "order:new",
           room: `restaurant:${order.restaurantId}`,

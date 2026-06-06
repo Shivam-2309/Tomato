@@ -230,3 +230,38 @@ export const updateOrderStatus = TryCatch(async (req, res) => {
     // hr rider ko bhejdo
     res.json({ message: "Order completed successfully", order });
 });
+export const getMyOrders = TryCatch(async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({
+            message: "Unautheorized",
+        });
+    }
+    const orders = await Order.find({
+        userId: req.user._id.toString(),
+        paymentStatus: "paid",
+    }).sort({
+        createdAt: -1,
+    });
+    res.json({ orders });
+});
+export const fetchSingleOrder = TryCatch(async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({
+            message: "Unautheorized",
+        });
+    }
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+        return res.status(404).json({
+            message: "Order not found",
+        });
+    }
+    if (order.userId !== req.user._id.toString()) {
+        return res.status(400).json({
+            message: "You are not allowed to view this order",
+        });
+    }
+    res.json({
+        order,
+    });
+});

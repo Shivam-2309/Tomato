@@ -4,6 +4,7 @@ import axios from "axios";
 import { restaurantService } from "../main";
 import AddRestaurant from "../components/AddRestaurant";
 import RestaurantProfile from "../components/RestaurantProfile";
+import RestaurantOrders from "../components/RestaurantOrders";
 import MenuItems from "../components/MenuItems";
 import AddMenuItem from "../components/AddMenuItem";
 
@@ -81,6 +82,7 @@ const Restaurant = () => {
         isSeller={true}
         onUpdate={setRestaurant}
       />
+      <RestaurantOrders restaurantId={restaurant._id} />
       <div className="rounded-xl bg-white shadow-sm">
         <div className="flex border-b border-gray-200">
           {[
