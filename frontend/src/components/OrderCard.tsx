@@ -107,10 +107,10 @@ const OrderCard = ({ order, onStatusUpdate }: Props) => {
             <button
               key={action.nextStatus}
               disabled={loading}
-              onClick={() => updateStatus(actions[0])}
+              onClick={() => updateStatus(action)}
               className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loading ? "Updating..." : action.label}
+              {loading ? "Updating..." : `Click for ${action}`}
             </button>
           ))}
         </div>
