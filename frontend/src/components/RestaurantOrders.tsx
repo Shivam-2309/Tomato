@@ -154,7 +154,11 @@ const RestaurantOrders = ({ restaurantId }: { restaurantId: string }) => {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {activeOrders.map((order) => (
-              <OrderCard key={order._id} order={order} />
+              <OrderCard
+                key={order._id}
+                order={order}
+                onStatusUpdate={fetchOrders}
+              />
             ))}
           </div>
         )}
@@ -178,7 +182,11 @@ const RestaurantOrders = ({ restaurantId }: { restaurantId: string }) => {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {completedOrders.map((order) => (
-              <OrderCard key={order._id} order={order} />
+              <OrderCard
+                key={order._id}
+                order={order}
+                onStatusUpdate={fetchOrders}
+              />
             ))}
           </div>
         )}
