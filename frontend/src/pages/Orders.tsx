@@ -100,6 +100,8 @@ const Orders = () => {
   const { socket } = useSocket();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<IOrder[]>([]);
+  const [currentPageActiveOrder, setCurrentPageActiveOrder] = useState(0);
+  const [currentPageCompletedOrder, setCurrentPageCompletedOrder] = useState(0);
 
   const fetchMyOrders = async () => {
     try {
@@ -161,10 +163,20 @@ const Orders = () => {
   }
 
   const activeOrders = orders.filter((o) => ACTIVE_STATUSES.includes(o.status));
-
   const completedOrders = orders.filter(
     (o) => !ACTIVE_STATUSES.includes(o.status),
   );
+  const PAGE_SIZE = 4;
+
+  const totalPagesActiveOrder = Math.ceil(activeOrders.length / PAGE_SIZE);
+  const startActiveOrder = currentPageActiveOrder * PAGE_SIZE;
+  const endActiveOrder = startActiveOrder + PAGE_SIZE;
+
+  const totalPagesCompletedOrder = Math.ceil(
+    completedOrders.length / PAGE_SIZE,
+  );
+  const startCompletedOrder = currentPageCompletedOrder * PAGE_SIZE;
+  const endCompletedOrder = startCompletedOrder + PAGE_SIZE;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
@@ -176,24 +188,94 @@ const Orders = () => {
             Active Orders ({activeOrders.length})
           </h2>
 
-          <div className="grid gap-4">
-            {activeOrders.map((order) => (
-              <OrderCard key={order._id} order={order} />
+          <div className="flex gap-2 mb-6">
+            <button
+              disabled={startActiveOrder === 0}
+              onClick={() =>
+                setCurrentPageActiveOrder((prev) => Math.max(0, prev - 1))
+              }
+              className="p-2 rounded-lg"
+            >
+              ⬅️
+            </button>
+            {[...Array(totalPagesActiveOrder).keys()].map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPageActiveOrder(page)}
+                className={`px-4 py-2 rounded-lg ${
+                  currentPageActiveOrder === page
+                    ? "bg-black text-white"
+                    : "bg-gray-200 text-gray-700"
+                }`}
+              >
+                {page + 1}
+              </button>
             ))}
+            <button
+              onClick={() =>
+                setCurrentPageActiveOrder((prev) =>
+                  Math.min(totalPagesActiveOrder - 1, prev + 1),
+                )
+              }
+              className="p-2 rounded-lg"
+            >
+              ➡️
+            </button>
+          </div>
+
+          <div className="grid gap-4">
+            {activeOrders
+              .slice(startActiveOrder, endActiveOrder)
+              .map((order) => (
+                <OrderCard key={order._id} order={order} />
+              ))}
           </div>
         </section>
       )}
 
       {completedOrders.length > 0 && (
         <section className="mt-10">
+          <button
+            disabled={startCompletedOrder === 0}
+            onClick={() => {
+              setCurrentPageCompletedOrder((prev) => Math.max(0, prev - 1));
+            }}
+            className="rounded-lg px-2"
+          >
+            ⬅️
+          </button>
+          {[...Array(totalPagesCompletedOrder).keys()].map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPageCompletedOrder(page)}
+              className={`px-4 py-2 rounded-lg ${
+                currentPageCompletedOrder === page
+                  ? "bg-black text-white"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              {page + 1}
+            </button>
+          ))}
+          <button
+            disabled={startCompletedOrder === totalPagesCompletedOrder - 1}
+            onClick={() => {
+              setCurrentPageCompletedOrder((prev) => Math.min(0, prev + 1));
+            }}
+            className="rounded-lg px-2"
+          >
+            ➡️
+          </button>
           <h2 className="text-xl font-semibold mb-4">
             Previous Orders ({completedOrders.length})
           </h2>
 
           <div className="grid gap-4">
-            {completedOrders.map((order) => (
-              <OrderCard key={order._id} order={order} />
-            ))}
+            {completedOrders
+              .slice(startCompletedOrder, endCompletedOrder)
+              .map((order) => (
+                <OrderCard key={order._id} order={order} />
+              ))}
           </div>
         </section>
       )}

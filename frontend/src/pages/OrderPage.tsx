@@ -114,7 +114,7 @@ export const OrderPage = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
       {/* Header */}
-      <div className="bg-linear-to-r from-[#E23744] via-white to-[#E23744] rounded-3xl border border-[#E23744] p-6 shadow-md">
+      <div className="rounded-3xl border border-[#E23744] p-6 shadow-md">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
           <div>
             <h4 className="text-xl font-bold text-gray-800">
