@@ -14,7 +14,7 @@ export const addRiderProfile = TryCatch(
       });
     }
 
-    if (user.role !== "rider") {
+    if (user.role !== "Rider") {
       return res.status(403).json({
         message: "Only riders can create a rider profile",
       });
@@ -112,7 +112,7 @@ export const fetchMyRiderProfile = TryCatch(
       });
     }
 
-    if (user.role !== "rider") {
+    if (user.role !== "Rider") {
       return res.status(403).json({
         message: "Only riders can access their rider profile",
       });
@@ -145,7 +145,7 @@ export const toggleRiderAvailability = TryCatch(
       });
     }
 
-    if (user.role !== "rider") {
+    if (user.role !== "Rider") {
       return res.status(403).json({
         message: "Only riders can toggle their availability",
       });

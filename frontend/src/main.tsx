@@ -10,6 +10,7 @@ export const authService = "http://localhost:3000";
 export const restaurantService = "http://localhost:8080";
 export const utilsService = "http://localhost:5002";
 export const realtimeService = "http://localhost:5004";
+export const riderService = "http://localhost:5005";
 
 const googleAuthClientId = import.meta.env.VITE_GOOGLEAUTH_CLIENT_ID;
 

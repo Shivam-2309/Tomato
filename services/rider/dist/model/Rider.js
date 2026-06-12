@@ -12,7 +12,6 @@ const schema = new Schema({
     phoneNumber: {
         type: String,
         required: true,
-        unique: true,
         trim: true,
     },
     aadharNumber: {
