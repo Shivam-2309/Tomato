@@ -4,6 +4,7 @@ import cart from "../models/cart.js";
 import Order from "../models/Order.js";
 import Restaurant from "../models/restaurant.js";
 import axios from "axios";
+import { publishEvent } from "../config/order.publisher.js";
 const getDistanceKm = (lat1, lon1, lat2, lon2) => {
     const toRad = (deg) => (deg * Math.PI) / 180;
     const R = 6371;
@@ -227,7 +228,15 @@ export const updateOrderStatus = TryCatch(async (req, res) => {
             "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
         },
     });
-    // hr rider ko bhejdo
+    if (status === "ready_for_rider") {
+        console.log("publishing ready order for rider event for order pickup", order._id);
+        await publishEvent("ORDER_READY_FOR_RIDER", {
+            orderId: order._id,
+            restaurantId: restaurant._id.toString(),
+            location: restaurant.autoLocation,
+        });
+        console.log("Event has been published successfully");
+    }
     res.json({ message: "Order completed successfully", order });
 });
 export const getMyOrders = TryCatch(async (req, res) => {
