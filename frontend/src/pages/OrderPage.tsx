@@ -78,11 +78,16 @@ export const OrderPage = () => {
     const onSocketUpdate = () => {
       fetchOrder();
     };
+    const onUpdateOrder = () => {
+      fetchOrder();
+    };
 
     socket.on("order:update", onSocketUpdate);
+    socket.on("order:rider_assigned", onUpdateOrder);
 
     return () => {
       socket.off("order:update", onSocketUpdate);
+      socket.off("order:rider_assigned", onUpdateOrder);
     };
   }, [socket, id]);
 

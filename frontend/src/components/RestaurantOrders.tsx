@@ -93,6 +93,20 @@ const RestaurantOrders = ({ restaurantId }: { restaurantId: string }) => {
     };
   }, [socket, audioUnlocked]);
 
+  useEffect(() => {
+    if (!socket) return;
+
+    const onUpdateOrder = () => {
+      fetchOrders();
+    };
+
+    socket.on("order:rider_assigned", onUpdateOrder);
+
+    return () => {
+      socket.off("order:rider_assigned", onUpdateOrder);
+    };
+  }, [socket]);
+
   const activeOrders = orders.filter((order) =>
     ACTIVE_STATUSES.includes(order.status),
   );

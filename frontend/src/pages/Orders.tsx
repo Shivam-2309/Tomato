@@ -132,11 +132,16 @@ const Orders = () => {
     const onSocketUpdate = () => {
       fetchMyOrders();
     };
+    const onUpdateOrder = () => {
+      fetchMyOrders();
+    };
 
     socket.on("order:update", onSocketUpdate);
+    socket.on("order:rider_assigned", onUpdateOrder);
 
     return () => {
       socket.off("order:update", onSocketUpdate);
+      socket.off("order:rider_assigned", onUpdateOrder);
     };
   }, [socket]);
 

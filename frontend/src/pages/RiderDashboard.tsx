@@ -1,9 +1,11 @@
 import axios from "axios";
 import { useAppData } from "../context/AppProvider";
 import { useSocket } from "../context/SocketContext";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { riderService } from "../main";
 import toast from "react-hot-toast";
+import type { IOrder } from "../types";
+import audio from "../assets/SOUND2.mp3";
 
 interface IRider {
   _id: string;
@@ -32,6 +34,63 @@ const RiderDashboard = () => {
   const [profile, setProfile] = useState<IRider | null>(null);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState(false);
+
+  const [incomingOrders, setIncomingOrders] = useState<string[]>([]);
+  const [currentOrder, setCurrentOrder] = useState<IOrder | null>(null);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
+  const { setIsAuth, setUser } = useAppData();
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    audioRef.current = new Audio(audio);
+    // ets the HTML5 Audio preload property to instruct
+    // the browser to download the entire audio file immediately
+    audioRef.current.preload = "auto";
+  }, []);
+
+  const logoutHandler = () => {
+    localStorage.setItem("token", "");
+    setIsAuth(false);
+    setUser(null);
+    toast.success("Logout successful");
+  };
+
+  const unlockAudio = async () => {
+    try {
+      if (!audioRef.current) return;
+      await audioRef.current.play();
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setAudioUnlocked(true);
+      toast.success("Sound Enabled");
+    } catch (err) {
+      toast.error("Tap again to enable sound");
+    }
+  };
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const onOrderAvailable = ({ orderId }: { orderId: string }) => {
+      setIncomingOrders((prev) =>
+        prev.includes(orderId) ? prev : [...prev, orderId],
+      );
+      if (audioUnlocked && audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(() => {});
+      }
+
+      setTimeout(() => {
+        setIncomingOrders((prev) => prev.filter((id) => id != orderId));
+      }, 10000);
+    };
+
+    socket.on("order:available", onOrderAvailable);
+
+    return () => {
+      socket.off("order:available", onOrderAvailable);
+    };
+  }, [socket, audioUnlocked]);
 
   const [phoneNumber, setPhoneNumber] = useState("");
   const [drivingLicenseNumber, setDrivingLicenseNumber] = useState("");
@@ -63,6 +122,28 @@ const RiderDashboard = () => {
       setLoading(false);
     }
   }, [user]);
+
+  const fetchCurrentOrder = async () => {
+    try {
+      const { data } = await axios.get(
+        `${riderService}/api/rider/order/current`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
+      setCurrentOrder(data.order);
+    } catch (err) {
+      toast.error("Failed to fetch order details");
+      setCurrentOrder(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchCurrentOrder();
+  }, []);
 
   const toggleAvailability = async () => {
     if (!navigator.geolocation) {
@@ -267,8 +348,8 @@ const RiderDashboard = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto min-h-[60vh] flex items-center justify-center px-3 py-3">
-      <div className="bg-white rounded-3xl shadow-lg p-8 max-w-2xl space-y-8">
+    <div className="max-w-3xl mx-auto min-h-screen flex items-center justify-center px-3 py-3">
+      <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-2xl space-y-8">
         {/* Header */}
         <div className="flex flex-col items-center gap-4 border-b pb-8">
           <img
@@ -338,7 +419,7 @@ const RiderDashboard = () => {
         </div>
 
         {/* Action Button */}
-        <div className="pt-2">
+        <div className="pt-2 flex gap-2">
           <button
             disabled={toggling}
             onClick={toggleAvailability}
@@ -354,7 +435,55 @@ const RiderDashboard = () => {
                 ? "Go Offline"
                 : "Go Online"}
           </button>
+          <button
+            disabled={toggling}
+            onClick={logoutHandler}
+            className={
+              "w-full py-4 rounded-xl font-semibold text-white transition bg-red-500 hover:bg-red-600"
+            }
+          >
+            Logout
+          </button>
         </div>
+        {!audioUnlocked && (
+          <div className="rounded-xl border border-yellow-300 bg-yellow-50 p-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h3 className="font-semibold text-yellow-800">
+                  Enable Order Notifications
+                </h3>
+
+                <p className="text-sm text-yellow-700">
+                  Click once to enable notification sounds for new orders.
+                </p>
+              </div>
+
+              <button
+                onClick={unlockAudio}
+                className="rounded-lg bg-yellow-500 px-4 py-2 text-white transition hover:bg-yellow-600"
+              >
+                Enable Sound
+              </button>
+            </div>
+          </div>
+        )}
+        {audioUnlocked && (
+          <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-green-700">
+            🔊 Notification sound enabled
+          </div>
+        )}
+
+        {profile.isAvailable && incomingOrders.length > 0 && (
+          <div className="rounded-xl border border-blue-300 bg-blue-50 p-4">
+            {incomingOrders.map((id) => (
+              <div key={id} className="mb-2 last:mb-0">
+                <p className="text-sm text-blue-700">
+                  New order available: {id}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -286,6 +286,9 @@ export const fetchMyCurrentOrder = TryCatch(
 
     try {
       if (!rider) throw new Error("no rider found");
+
+      console.log("rider id", rider._id);
+
       const { data } = await axios.get(
         `${process.env.RESTAURANT_SERVICE}/api/order/current/rider?riderId=${rider._id}`,
         {
@@ -296,9 +299,9 @@ export const fetchMyCurrentOrder = TryCatch(
       );
 
       res.json({ order: data });
-    } catch (err) {
+    } catch (err: any) {
       res.status(500).json({
-        message: "Internal Server Error",
+        message: err.response.data.message,
       });
     }
   },
