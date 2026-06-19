@@ -512,7 +512,7 @@ const RiderDashboard = () => {
             </div>
             <button
               onClick={unlockAudio}
-              className="flex-shrink-0 bg-amber-400 hover:bg-amber-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all active:scale-95"
+              className="shrink-0 bg-amber-400 hover:bg-amber-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all active:scale-95"
             >
               Enable 🔔
             </button>
