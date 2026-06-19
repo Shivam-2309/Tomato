@@ -46,14 +46,15 @@ export const updateRestaurantLikeCount = TryCatch(async (req, res) => {
             userId,
             restaurantId,
         });
-        const updatedRestaurant = await Restaurant.findByIdAndUpdate(restaurantId, {
+        await Restaurant.findByIdAndUpdate(restaurantId, {
             $inc: { likesCount: 1 },
         }, {
             new: true,
         });
+        const totalLikes = await RestaurantLikes.countDocuments({ restaurantId });
         return res.json({
             liked: true,
-            likesCount: updatedRestaurant?.likesCount ?? 1,
+            likesCount: totalLikes,
         });
     }
     catch (error) {

@@ -14,7 +14,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   const handleLike = async (e: React.MouseEvent, restaurantId: string) => {
-    e.stopPropagation(); // prevent card navigation
+    e.stopPropagation();
 
     try {
       const { data } = await axios.post(

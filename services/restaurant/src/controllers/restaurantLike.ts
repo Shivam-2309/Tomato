@@ -64,7 +64,7 @@ export const updateRestaurantLikeCount = TryCatch(
         restaurantId,
       });
 
-      const updatedRestaurant = await Restaurant.findByIdAndUpdate(
+      await Restaurant.findByIdAndUpdate(
         restaurantId,
         {
           $inc: { likesCount: 1 },
@@ -74,9 +74,11 @@ export const updateRestaurantLikeCount = TryCatch(
         },
       );
 
+      const totalLikes = await RestaurantLikes.countDocuments({ restaurantId });
+
       return res.json({
         liked: true,
-        likesCount: updatedRestaurant?.likesCount ?? 1,
+        likesCount: totalLikes,
       });
     } catch (error) {
       console.error(error);
