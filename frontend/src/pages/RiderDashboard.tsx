@@ -376,12 +376,12 @@ const RiderDashboard = () => {
   const isOnline = profile.isAvailable && !currentOrder;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 flex items-center justify-center">
-      <div className="max-w-xl mx-auto space-y-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen max-w-xl mx-auto space-y-4 flex flex-col justify-center px-4 py-10">
         {/* Profile card */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           {/* Cover strip */}
-          <div className="h-16 bg-gradient-to-r from-[#e23744] to-[#f05060]" />
+          <div className="h-16 bg-linear-to-r from-[#e23744] to-[#f05060]" />
 
           <div className="px-5 pb-5">
             <div className="flex items-end gap-4 -mt-8 mb-4">
