@@ -121,7 +121,7 @@ export interface IOrder {
     | "accepted"
     | "preparing"
     | "ready_for_rider"
-    | "rider_assgined"
+    | "rider_assigned"
     | "picked_up"
     | "delivered"
     | "cancelled";

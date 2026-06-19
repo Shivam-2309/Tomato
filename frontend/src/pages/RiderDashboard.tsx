@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import type { IOrder } from "../types";
 import audio from "../assets/SOUND2.mp3";
 import RiderOrderRequest from "../components/RiderOrderRequest";
+import { RiderCurrentOrder } from "../components/RiderCurrentOrder";
 
 interface IRider {
   _id: string;
@@ -492,6 +493,15 @@ const RiderDashboard = () => {
                 </p>
               </div>
             ))}
+          </div>
+        )}
+
+        {currentOrder && (
+          <div className="mx-auto max-w-md px-4 space-y-2">
+            <RiderCurrentOrder
+              order={currentOrder}
+              onStatusUpdate={fetchCurrentOrder}
+            />
           </div>
         )}
       </div>

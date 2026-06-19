@@ -11,7 +11,7 @@ const ORDER_STEPS = [
   "accepted",
   "preparing",
   "ready_for_rider",
-  "rider_assgined",
+  "rider_assigned",
   "picked_up",
   "delivered",
 ];
@@ -24,7 +24,7 @@ const getStatusColor = (status: string) => {
       return "bg-yellow-100 text-yellow-700";
     case "ready_for_rider":
       return "bg-purple-100 text-purple-700";
-    case "rider_assgined":
+    case "rider_assigned":
       return "bg-indigo-100 text-indigo-700";
     case "picked_up":
       return "bg-orange-100 text-orange-700";
