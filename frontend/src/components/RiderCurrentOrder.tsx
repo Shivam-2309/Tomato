@@ -52,7 +52,7 @@ export const RiderCurrentOrder = ({
               {order.restaurantName}
             </h2>
           </div>
-          <span className="flex-shrink-0 bg-white/20 text-white text-xs font-mono px-2.5 py-1 rounded-full">
+          <span className="shrink-0 bg-white/20 text-white text-xs font-mono px-2.5 py-1 rounded-full">
             #{order._id.slice(-6).toUpperCase()}
           </span>
         </div>
@@ -97,7 +97,7 @@ export const RiderCurrentOrder = ({
       <div className="p-5 space-y-4">
         {/* Delivery Address */}
         <div className="rounded-xl bg-gray-50 border border-gray-100 p-4 flex gap-3">
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-base">
+          <div className="shrink-0 w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-base">
             📍
           </div>
           <div>
