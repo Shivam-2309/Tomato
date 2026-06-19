@@ -66,7 +66,7 @@ const RiderOrderRequest = ({ orderId, onAccepted }: Props) => {
 
       <div className="flex items-start gap-4">
         {/* Countdown ring */}
-        <div className="relative flex-shrink-0 flex items-center justify-center w-14 h-14">
+        <div className="relative shrink-0 flex items-center justify-center w-14 h-14">
           <svg
             className="absolute inset-0 w-14 h-14 -rotate-90"
             viewBox="0 0 48 48"
