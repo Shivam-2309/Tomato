@@ -281,7 +281,25 @@ export const assignRiderToOrder = TryCatch(async (req, res) => {
         });
     }
     const { orderId, riderId, riderName, riderPhone } = req.body;
+    console.log("Received request to assign rider", {
+        orderId,
+        riderId,
+        riderName,
+        riderPhone,
+    });
+    const orderAvailable = await Order.findOne({
+        riderId,
+        status: {
+            $ne: "delivered",
+        },
+    });
+    if (orderAvailable) {
+        return res
+            .status(400)
+            .json({ message: "You already have an order in progress" });
+    }
     const order = await Order.findById(orderId);
+    console.log("Order found for assignment:", order);
     if (order?.riderId !== null) {
         return res.status(400).json({ messgae: "Order already taken" });
     }

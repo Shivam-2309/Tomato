@@ -227,13 +227,18 @@ export const acceptOrder = TryCatch(async (req: AuthenticatedRequest, res) => {
   }
 
   try {
+    console.log(
+      "Accepting order with ID:",
+      orderId,
+      "for rider user ID:",
+      riderUserId,
+    );
     const { data } = await axios.put(
       `${process.env.RESTAURANT_SERVICE}/api/order/assign/rider`,
       {
         orderId,
         riderId: rider?._id,
-        riderUserId: rider?.userId,
-        riderName: rider?.picture,
+        riderName: req.user?.image,
         riderPhone: rider?.phoneNumber,
       },
       {
@@ -242,6 +247,8 @@ export const acceptOrder = TryCatch(async (req: AuthenticatedRequest, res) => {
         },
       },
     );
+
+    console.log("Assign Rider Response:", data);
 
     if (data.success) {
       const riderDetails = await Rider.findOneAndUpdate(
@@ -275,7 +282,7 @@ export const fetchMyCurrentOrder = TryCatch(
 
     const rider = await Rider.findOne({
       userId: riderUserId,
-      isAvailable: true,
+      isVerified: true,
     });
 
     if (!rider) {

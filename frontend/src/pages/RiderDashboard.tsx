@@ -6,6 +6,7 @@ import { riderService } from "../main";
 import toast from "react-hot-toast";
 import type { IOrder } from "../types";
 import audio from "../assets/SOUND2.mp3";
+import RiderOrderRequest from "../components/RiderOrderRequest";
 
 interface IRider {
   _id: string;
@@ -136,7 +137,7 @@ const RiderDashboard = () => {
 
       setCurrentOrder(data.order);
     } catch (err) {
-      toast.error("Failed to fetch order details");
+      // toast.error("Failed to fetch order details");
       setCurrentOrder(null);
     }
   };
@@ -176,7 +177,7 @@ const RiderDashboard = () => {
 
           fetchProfile();
         } catch (error: any) {
-          toast.error(error?.response?.data?.message || "Something went wrong");
+          // toast.error(error?.response?.data?.message || "Something went wrong");
         } finally {
           setToggling(false);
         }
@@ -348,8 +349,8 @@ const RiderDashboard = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto min-h-screen flex items-center justify-center px-3 py-3">
-      <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-2xl space-y-8">
+    <div className="max-w-4xl mx-auto min-h-screen flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-3xl bg-white rounded-[32px] border border-gray-100 shadow-xl p-8 space-y-8">
         {/* Header */}
         <div className="flex flex-col items-center gap-4 border-b pb-8">
           <img
@@ -376,7 +377,7 @@ const RiderDashboard = () => {
                   : "bg-red-100 text-red-700"
               }`}
             >
-              {profile.isAvailable ? "Online" : "Offline"}
+              {profile.isAvailable && !currentOrder ? "Online" : "Offline"}
             </span>
           </div>
           <p className="text-sm text-gray-500">
@@ -419,32 +420,35 @@ const RiderDashboard = () => {
         </div>
 
         {/* Action Button */}
-        <div className="pt-2 flex gap-2">
-          <button
-            disabled={toggling}
-            onClick={toggleAvailability}
-            className={`w-full py-4 rounded-xl font-semibold text-white transition ${
-              profile.isAvailable
-                ? "bg-red-500 hover:bg-red-600"
-                : "bg-green-500 hover:bg-green-600"
-            } disabled:opacity-70`}
-          >
-            {toggling
-              ? "Updating Status..."
-              : profile.isAvailable
-                ? "Go Offline"
-                : "Go Online"}
-          </button>
-          <button
-            disabled={toggling}
-            onClick={logoutHandler}
-            className={
-              "w-full py-4 rounded-xl font-semibold text-white transition bg-red-500 hover:bg-red-600"
-            }
-          >
-            Logout
-          </button>
-        </div>
+        {!currentOrder && (
+          <div className="pt-2 flex gap-2">
+            <button
+              disabled={toggling}
+              onClick={toggleAvailability}
+              className={`w-full p-4 rounded-xl font-semibold text-white transition ${
+                profile.isAvailable
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-green-500 hover:bg-green-600"
+              } disabled:opacity-70`}
+            >
+              {toggling
+                ? "Updating Status..."
+                : profile.isAvailable
+                  ? "Go Offline"
+                  : "Go Online"}
+            </button>
+          </div>
+        )}
+
+        <button
+          disabled={toggling}
+          onClick={logoutHandler}
+          className={
+            "w-full p-4 rounded-xl font-semibold text-white transition bg-red-500 hover:bg-red-600"
+          }
+        >
+          Logout
+        </button>
         {!audioUnlocked && (
           <div className="rounded-xl border border-yellow-300 bg-yellow-50 p-4">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -473,12 +477,18 @@ const RiderDashboard = () => {
           </div>
         )}
 
-        {profile.isAvailable && incomingOrders.length > 0 && (
+        {!currentOrder && incomingOrders.length > 0 && (
           <div className="rounded-xl border border-blue-300 bg-blue-50 p-4">
             {incomingOrders.map((id) => (
               <div key={id} className="mb-2 last:mb-0">
                 <p className="text-sm text-blue-700">
-                  New order available: {id}
+                  <RiderOrderRequest
+                    orderId={id}
+                    onAccepted={() => {
+                      fetchCurrentOrder();
+                      fetchProfile();
+                    }}
+                  />
                 </p>
               </div>
             ))}

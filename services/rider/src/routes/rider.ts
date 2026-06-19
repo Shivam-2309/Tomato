@@ -15,7 +15,7 @@ const router = express();
 router.get("/myprofile", isAuth, fetchMyRiderProfile);
 router.patch("/toggle", isAuth, toggleRiderAvailability);
 router.post("/new", isAuth, uploadFile, addRiderProfile);
-router.post("/accept/orderId", isAuth, acceptOrder);
+router.post("/accept/:orderId", isAuth, acceptOrder);
 router.get("/order/current", isAuth, fetchMyCurrentOrder);
 router.put("/order/update/:orderId", isAuth, updateOrderStatus);
 
