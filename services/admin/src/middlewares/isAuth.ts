@@ -22,7 +22,6 @@ export const isAuth = async (
   try {
     // 1:17:25
     const authHeader = req.headers.authorization;
-
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       res.status(401).json({
         message: "Please login - No Auth header",
@@ -68,7 +67,7 @@ export const isAdmin = (
   next: NextFunction,
 ) => {
   try {
-    if (!req.user || req.user.role !== "admin") {
+    if (!req.user || req.user.role !== "Admin") {
       res.status(403).json({
         message: "Access denied - Admins only",
       });

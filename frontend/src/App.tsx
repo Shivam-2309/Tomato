@@ -18,7 +18,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import Orders from "./pages/Orders";
 import { OrderPage } from "./pages/OrderPage";
 import RiderDashboard from "./pages/RiderDashboard";
-
+import Admin from "./pages/Admin";
 function App() {
   const { user, loading } = useAppData();
 
@@ -34,6 +34,9 @@ function App() {
   }
   if (user && user?.role === "Rider") {
     return <RiderDashboard />;
+  }
+  if (user && user?.role === "Admin") {
+    return <Admin />;
   }
   return (
     <>
