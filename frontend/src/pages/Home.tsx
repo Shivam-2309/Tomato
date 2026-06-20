@@ -204,109 +204,110 @@ const Home = () => {
                     ).toFixed(1)
                   : null;
 
-              return (
-                <div
-                  key={String(restaurant._id)}
-                  onClick={() => navigate(`/restaurant/${restaurant._id}`)}
-                  className="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 flex flex-col h-full"
-                >
-                  {/* Image Container */}
-                  <div className="relative h-44 w-full overflow-hidden bg-gray-100">
-                    {restaurant.image ? (
-                      <img
-                        src={restaurant.image}
-                        alt={restaurant.name}
-                        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
-                          !restaurant.isOpen && "grayscale opacity-60"
-                        }`}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-4xl bg-rose-50">
-                        🍴
-                      </div>
-                    )}
+              if (restaurant.isVerified)
+                return (
+                  <div
+                    key={String(restaurant._id)}
+                    onClick={() => navigate(`/restaurant/${restaurant._id}`)}
+                    className="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 flex flex-col h-full"
+                  >
+                    {/* Image Container */}
+                    <div className="relative h-44 w-full overflow-hidden bg-gray-100">
+                      {restaurant.image ? (
+                        <img
+                          src={restaurant.image}
+                          alt={restaurant.name}
+                          className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
+                            !restaurant.isOpen && "grayscale opacity-60"
+                          }`}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-4xl bg-rose-50">
+                          🍴
+                        </div>
+                      )}
 
-                    {/* Top Badges Overlay */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-2">
-                      {restaurant.isVerified && (
-                        <span className="bg-white/90 backdrop-blur-sm text-orange-600 text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded-md shadow-sm">
-                          ✓ Verified
-                        </span>
+                      {/* Top Badges Overlay */}
+                      <div className="absolute top-3 left-3 flex flex-col gap-2">
+                        {restaurant.isVerified && (
+                          <span className="bg-white/90 backdrop-blur-sm text-orange-600 text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded-md shadow-sm">
+                            ✓ Verified
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Like Button - Positioned Top Right for a "clean" feel */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent card click
+                          handleLike(e, String(restaurant._id));
+                        }}
+                        className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-md rounded-full shadow-md hover:bg-white transition-colors group/like"
+                      >
+                        <div className="flex items-center gap-1">
+                          <span className="text-red-500 group-active/like:scale-125 transition-transform">
+                            ❤️
+                          </span>
+                          <span className="text-xs font-bold text-gray-700">
+                            {restaurant.likesCount ?? 0}
+                          </span>
+                        </div>
+                      </button>
+
+                      {/* Open/Closed Overlay for Closed Restaurants */}
+                      {!restaurant.isOpen && (
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                          <span className="bg-white px-4 py-1 rounded-full text-sm text-gray-900 shadow-lg">
+                            Closed
+                          </span>
+                        </div>
                       )}
                     </div>
 
-                    {/* Like Button - Positioned Top Right for a "clean" feel */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent card click
-                        handleLike(e, String(restaurant._id));
-                      }}
-                      className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-md rounded-full shadow-md hover:bg-white transition-colors group/like"
-                    >
-                      <div className="flex items-center gap-1">
-                        <span className="text-red-500 group-active/like:scale-125 transition-transform">
-                          ❤️
-                        </span>
-                        <span className="text-xs font-bold text-gray-700">
-                          {restaurant.likesCount ?? 0}
-                        </span>
+                    {/* Info Section */}
+                    <div className="p-4 flex flex-col grow">
+                      <div className="flex justify-between items-start mb-1">
+                        <h3 className="text-md font-bold text-gray-900 truncate pr-2">
+                          {restaurant.name}
+                        </h3>
+                        {distance && (
+                          <span className="shrink-0 text-xs font-semibold text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">
+                            {distance} km
+                          </span>
+                        )}
                       </div>
-                    </button>
 
-                    {/* Open/Closed Overlay for Closed Restaurants */}
-                    {!restaurant.isOpen && (
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                        <span className="bg-white px-4 py-1 rounded-full text-sm text-gray-900 shadow-lg">
-                          Closed
+                      {restaurant.description && (
+                        <p className="text-sm text-gray-500 line-clamp-1 mb-2">
+                          {restaurant.description}
+                        </p>
+                      )}
+
+                      {restaurant.autoLocation?.formattedAddress && (
+                        <div className="flex items-center gap-1 text-xs text-gray-400 mb-3">
+                          <span className="truncate shrink">
+                            📍 {restaurant.autoLocation.formattedAddress}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Card Footer */}
+                      <div className="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between text-xs font-medium text-gray-600">
+                        <span className="flex items-center gap-1">
+                          <span className="text-gray-400">📞</span>{" "}
+                          {restaurant.phone}
                         </span>
+
+                        {restaurant.isOpen && (
+                          <span className="flex items-center gap-1 text-green-600">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                            Open Now
+                          </span>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
-
-                  {/* Info Section */}
-                  <div className="p-4 flex flex-col grow">
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="text-md font-bold text-gray-900 truncate pr-2">
-                        {restaurant.name}
-                      </h3>
-                      {distance && (
-                        <span className="shrink-0 text-xs font-semibold text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">
-                          {distance} km
-                        </span>
-                      )}
-                    </div>
-
-                    {restaurant.description && (
-                      <p className="text-sm text-gray-500 line-clamp-1 mb-2">
-                        {restaurant.description}
-                      </p>
-                    )}
-
-                    {restaurant.autoLocation?.formattedAddress && (
-                      <div className="flex items-center gap-1 text-xs text-gray-400 mb-3">
-                        <span className="truncate shrink">
-                          📍 {restaurant.autoLocation.formattedAddress}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Card Footer */}
-                    <div className="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between text-xs font-medium text-gray-600">
-                      <span className="flex items-center gap-1">
-                        <span className="text-gray-400">📞</span>{" "}
-                        {restaurant.phone}
-                      </span>
-
-                      {restaurant.isOpen && (
-                        <span className="flex items-center gap-1 text-green-600">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                          Open Now
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
+                );
             })}
           </div>
         )}

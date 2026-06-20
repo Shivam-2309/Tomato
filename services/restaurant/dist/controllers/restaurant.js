@@ -130,7 +130,7 @@ export const getNearbyRestaurant = TryCatch(async (req, res) => {
             message: "Latitude and Longitude are required",
         });
     const query = {
-    //   isVerified: true,
+        isVerified: true,
     };
     if (search && typeof search === "string") {
         query.name = { $regex: search, $options: "i" };

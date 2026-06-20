@@ -191,7 +191,7 @@ export const getNearbyRestaurant = TryCatch(
       });
 
     const query: any = {
-      //   isVerified: true,
+      isVerified: true,
     };
 
     if (search && typeof search === "string") {
