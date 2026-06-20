@@ -135,15 +135,13 @@ const Admin = () => {
         {tab === "verify-restaurant" && selectedRestaurant && (
           <div className="flex items-center gap-2 ml-2 px-5 py-3 text-sm border-b-2 border-red-500 text-red-400">
             <span className="text-zinc-600">/</span>
-            <span className="truncate max-w-[160px]">
-              {selectedRestaurant.name}
-            </span>
+            <span className="truncate max-w-40">{selectedRestaurant.name}</span>
           </div>
         )}
         {tab === "verify-rider" && selectedRider && (
           <div className="flex items-center gap-2 ml-2 px-5 py-3 text-sm border-b-2 border-red-500 text-red-400">
             <span className="text-zinc-600">/</span>
-            <span className="truncate max-w-[160px]">
+            <span className="truncate max-w-40">
               {selectedRider.phoneNumber}
             </span>
           </div>
@@ -179,7 +177,7 @@ const Admin = () => {
                         <img
                           src={r.image}
                           alt={r.name}
-                          className="w-12 h-12 rounded-md object-cover border border-zinc-700 flex-shrink-0"
+                          className="w-12 h-12 rounded-md object-cover border border-zinc-700 shrink-0"
                           onError={(e) =>
                             (e.currentTarget.src =
                               "https://placehold.co/48x48/27272a/ef4444?text=R")
@@ -193,7 +191,7 @@ const Admin = () => {
                             {r.autoLocation?.formattedAddress ?? "No address"}
                           </p>
                         </div>
-                        <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="flex items-center gap-3 shrink-0">
                           <span
                             className={`text-xs font-mono px-2 py-0.5 rounded ${
                               r.isOpen
@@ -240,7 +238,7 @@ const Admin = () => {
                         <img
                           src={r.picture}
                           alt="Rider"
-                          className="w-12 h-12 rounded-md object-cover border border-zinc-700 flex-shrink-0"
+                          className="w-12 h-12 rounded-md object-cover border border-zinc-700 shrink-0"
                           onError={(e) =>
                             (e.currentTarget.src =
                               "https://placehold.co/48x48/27272a/ef4444?text=R")
@@ -254,7 +252,7 @@ const Admin = () => {
                             DL: {r.drivingLicenseNumber}
                           </p>
                         </div>
-                        <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="flex items-center gap-3 shrink-0">
                           <span
                             className={`text-xs font-mono px-2 py-0.5 rounded ${
                               r.isAvailable
@@ -262,7 +260,7 @@ const Admin = () => {
                                 : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                             }`}
                           >
-                            {r.isAvailable ? "AVAILABLE" : "BUSY"}
+                            {r.isAvailable ? "AVAILABLE" : "NOT AVAILABLE"}
                           </span>
                           <button
                             onClick={() => openVerifyRider(r)}
@@ -303,7 +301,7 @@ const Admin = () => {
                           "https://placehold.co/700x200/27272a/ef4444?text=No+Image")
                       }
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-zinc-900 via-transparent to-transparent" />
                     <div className="absolute bottom-4 left-5">
                       <h2 className="text-xl font-bold text-white">
                         {selectedRestaurant.name}
@@ -432,7 +430,7 @@ const Admin = () => {
                     <img
                       src={selectedRider.picture}
                       alt="Rider"
-                      className="w-20 h-20 rounded-xl object-cover border border-zinc-700 flex-shrink-0"
+                      className="w-20 h-20 rounded-xl object-cover border border-zinc-700 shrink-0"
                       onError={(e) =>
                         (e.currentTarget.src =
                           "https://placehold.co/80x80/27272a/ef4444?text=R")
@@ -452,7 +450,9 @@ const Admin = () => {
                             : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                         }`}
                       >
-                        {selectedRider.isAvailable ? "AVAILABLE" : "BUSY"}
+                        {selectedRider.isAvailable
+                          ? "AVAILABLE"
+                          : "NOT AVAILABLE"}
                       </span>
                     </div>
                   </div>

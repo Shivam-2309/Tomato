@@ -458,7 +458,14 @@ const RiderDashboard = () => {
         </div>
 
         {/* Availability toggle */}
-        {!currentOrder && (
+        {!currentOrder && !profile.isVerified && (
+          <div className="bg-yellow-100 border border-yellow-200 rounded-2xl p-4">
+            <p className="text-sm text-yellow-700">
+              Please verify your account to become available for orders.
+            </p>
+          </div>
+        )}
+        {!currentOrder && profile.isVerified && (
           <button
             disabled={toggling}
             onClick={toggleAvailability}
