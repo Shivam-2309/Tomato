@@ -9,6 +9,7 @@ import { Response } from "express";
 import IssueService from "../services/issue-service.js";
 import Issue from "../models/Issue.js";
 import mongoose from "mongoose";
+import { publishIssueCreated } from "../config/issue.publish.js";
 
 export const getPendingRestaurants = TryCatch(async (req, res) => {
   const restaurantCollection = await getRestaurantCollection();
@@ -88,6 +89,17 @@ export const createIssue = async (req: AuthenticatedRequest, res: Response) => {
     description,
     imageUrl,
   });
+  console.log("Issue created:", issue);
+  console.log("Publishing issue created event to RabbitMQ...");
+  await publishIssueCreated({
+    issueId: issue._id.toString(),
+    orderId: issue.orderId.toString(),
+    customerId: issue.customerId.toString(),
+    imageUrl: issue.imageUrl,
+    description: issue.description,
+    issueType: issue.issueType,
+  });
+  console.log("Issue created event published to RabbitMQ");
 
   return res.status(201).json({
     success: true,

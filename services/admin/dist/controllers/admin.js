@@ -3,6 +3,7 @@ import TryCatch from "../middlewares/trycatch.js";
 import { getRestaurantCollection, getRiderCollection, } from "../util/collection.js";
 import IssueService from "../services/issue-service.js";
 import Issue from "../models/Issue.js";
+import { publishIssueCreated } from "../config/issue.publish.js";
 export const getPendingRestaurants = TryCatch(async (req, res) => {
     const restaurantCollection = await getRestaurantCollection();
     const pendingRestaurants = await restaurantCollection
@@ -70,6 +71,17 @@ export const createIssue = async (req, res) => {
         description,
         imageUrl,
     });
+    console.log("Issue created:", issue);
+    console.log("Publishing issue created event to RabbitMQ...");
+    await publishIssueCreated({
+        issueId: issue._id.toString(),
+        orderId: issue.orderId.toString(),
+        customerId: issue.customerId.toString(),
+        imageUrl: issue.imageUrl,
+        description: issue.description,
+        issueType: issue.issueType,
+    });
+    console.log("Issue created event published to RabbitMQ");
     return res.status(201).json({
         success: true,
         issue,
