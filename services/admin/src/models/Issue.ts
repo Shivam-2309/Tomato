@@ -3,15 +3,17 @@ import { IssueType } from "../enums/issue-type.js";
 import { IssueStatus } from "../enums/issue-status.js";
 
 export interface IIssue extends Document {
-  orderId: string;
-  customerId: string;
+  orderId: mongoose.Types.ObjectId;
+  customerId: mongoose.Types.ObjectId;
+
   issueType: IssueType;
 
   description: string;
   imageUrl: string;
 
   status: IssueStatus;
-  aiResult: {
+
+  aiResult?: {
     issueDetected?: boolean;
     confidence?: number;
     severity?: "low" | "medium" | "high";
@@ -20,6 +22,7 @@ export interface IIssue extends Document {
   };
 
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const schema = new Schema(
@@ -67,9 +70,7 @@ const schema = new Schema(
         type: String,
         enum: ["low", "medium", "high"],
       },
-
       reason: String,
-
       recommendation: String,
     },
   },
