@@ -133,3 +133,54 @@ export interface IOrder {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IIssue {
+  _id: string;
+  orderId: string;
+  customerId: string;
+
+  issueType:
+    | "burnt_food"
+    | "undercooked_food"
+    | "missing_item"
+    | "packaging_damage"
+    | "other";
+
+  description: string;
+  imageUrl: string;
+
+  status:
+    | "AI_ANALYSIS_PENDING"
+    | "ADMIN_REVIEW_PENDING"
+    | "APPROVED"
+    | "REJECTED";
+
+  aiResult?: {
+    issueDetected?: boolean;
+    confidence?: number;
+    severity?: "low" | "medium" | "high";
+    reason?: string;
+    recommendation?: string;
+  };
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IRider {
+  _id: string;
+  userId: string;
+  picture: string;
+  phoneNumber: string;
+  aadharNumber: string;
+  drivingLicenseNumber: string;
+  isVerified: boolean;
+  location: {
+    type: "Point";
+    coordinates: [number, number];
+  };
+  isAvailable: boolean;
+  lastActiveAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}

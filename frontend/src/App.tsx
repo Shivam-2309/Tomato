@@ -19,6 +19,7 @@ import Orders from "./pages/Orders";
 import { OrderPage } from "./pages/OrderPage";
 import RiderDashboard from "./pages/RiderDashboard";
 import Admin from "./pages/Admin";
+import Complaint from "./pages/Complaint";
 function App() {
   const { user, loading } = useAppData();
 
@@ -50,6 +51,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/restaurant/:id" element={<RestaurantPage />} />
             <Route path="/orders/:id" element={<OrderPage />} />
+            <Route path="/orders/:id/complaint" element={<Complaint />} />
             <Route
               path="/paymentsuccess/:paymentId"
               element={<PaymentSuccess />}
