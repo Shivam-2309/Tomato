@@ -1,4 +1,4 @@
-import { ObjectId } from "mongodb";
+import { Auth, ObjectId } from "mongodb";
 import TryCatch from "../middlewares/trycatch.js";
 import {
   getRestaurantCollection,
@@ -8,7 +8,8 @@ import { AuthenticatedRequest } from "../middlewares/isAuth.js";
 import { Response } from "express";
 import IssueService from "../services/issue-service.js";
 import Issue from "../models/Issue.js";
-import mongoose from "mongoose";
+import axios from "axios";
+import getBuffer from "../config/datauri.js";
 import { publishIssueCreated } from "../config/issue.publish.js";
 
 export const getPendingRestaurants = TryCatch(async (req, res) => {
@@ -76,21 +77,54 @@ export const verifyRider = TryCatch(async (req, res) => {
 });
 
 export const createIssue = async (req: AuthenticatedRequest, res: Response) => {
-  const { orderId, issueType, description, imageUrl } = req.body;
   if (!req.user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-  const userId = req.user._id;
+
+  const file = req.file;
+  if (!file) {
+    return res.status(400).json({ message: "Issue image is required" });
+  }
+
+  const fileBuffer = getBuffer(file);
+  if (!fileBuffer?.content) {
+    return res.status(500).json({ message: "Failed to generate image buffer" });
+  }
+
+  const { data: uploadResult } = await axios.post(
+    `${process.env.UTILS_SERVICE}/api/upload`,
+    { buffer: fileBuffer.content },
+  );
+
+  const imageUrl = uploadResult.url;
+  if (!imageUrl) {
+    return res.status(500).json({ message: "Image upload failed" });
+  }
+
+  const { orderId, issueType, description } = req.body;
+
+  console.log("Request: ", req);
+  console.log("orderId", orderId);
+  console.log("issueType", issueType);
+  console.log("description", description);
+
+  if (!orderId || !issueType || !description) {
+    return res
+      .status(400)
+      .json({ message: "orderId, issueType and description are required" });
+  }
 
   const issue = await IssueService.createIssue({
     orderId,
-    customerId: userId,
+    customerId: req.user._id,
     issueType,
     description,
     imageUrl,
   });
+
   console.log("Issue created:", issue);
   console.log("Publishing issue created event to RabbitMQ...");
+
   await publishIssueCreated({
     issueId: issue._id.toString(),
     orderId: issue.orderId.toString(),
@@ -99,17 +133,17 @@ export const createIssue = async (req: AuthenticatedRequest, res: Response) => {
     description: issue.description,
     issueType: issue.issueType,
   });
+
   console.log("Issue created event published to RabbitMQ");
 
-  return res.status(201).json({
-    success: true,
-    issue,
-  });
+  return res.status(201).json({ success: true, issue });
 };
 
 export const getIssue = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
+
+    console.log("ID: ", id);
 
     if (!id) {
       return res.status(400).json({
@@ -126,7 +160,7 @@ export const getIssue = async (req: AuthenticatedRequest, res: Response) => {
     }
 
     const issue = await Issue.findOne({
-      _id: id,
+      orderId: id,
       customerId: req.user._id,
     });
 
@@ -154,6 +188,8 @@ export const getAllIssues = async (
   res: Response,
 ) => {
   try {
+    // Abhi ke liye pagination is not added
+    // abhi sirf raw request aaegi, default values hi use kro
     let { page = 1, limit = 10 } = req.query;
 
     page = Number(page);
@@ -170,7 +206,7 @@ export const getAllIssues = async (
 
     return res.status(200).json({
       success: true,
-      data: issues,
+      issues: issues,
       pagination: {
         total,
         page,
@@ -183,5 +219,103 @@ export const getAllIssues = async (
       success: false,
       message: error.message || "Internal Server Error",
     });
+  }
+};
+
+export const updateAIResult = TryCatch(async (req, res) => {
+  if (req.headers["x-internal-key"] !== process.env.INTERNAL_SERVICE_KEY) {
+    return res.status(403).json({
+      message: "forbidden",
+    });
+  }
+  try {
+    const { issueId } = req.params;
+
+    const { aiResult, status } = req.body;
+
+    console.log("AI RESULT: ", aiResult);
+
+    const issue = await Issue.findByIdAndUpdate(
+      issueId,
+      {
+        aiResult,
+        status,
+      },
+      {
+        new: true,
+      },
+    );
+
+    if (!issue) {
+      return res.status(404).json({
+        success: false,
+        message: "Issue not found",
+      });
+    }
+
+    console.log("YAHAN TK AAGYA N FINALLY, AI HAS DONE ITS WORK");
+
+    return res.status(200).json({
+      success: true,
+      issue,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+export const approveIssue = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params;
+
+    const issue = await Issue.findByIdAndUpdate(
+      id,
+      { status: "APPROVED", updatedAt: new Date() },
+      { new: true },
+    );
+
+    if (!issue) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Issue not found" });
+    }
+
+    return res.status(200).json({ success: true, issue });
+  } catch (error) {
+    console.error("Error approving issue:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const rejectIssue = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const issue = await Issue.findByIdAndUpdate(
+      id,
+      { status: "REJECTED", updatedAt: new Date() },
+      { new: true },
+    );
+
+    if (!issue) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Issue not found" });
+    }
+
+    return res.status(200).json({ success: true, issue });
+  } catch (error) {
+    console.error("Error rejecting issue:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };

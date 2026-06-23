@@ -1,20 +1,24 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { adminService } from "../main";
+import type { IIssue, IRestaurant, IRider } from "../types";
 
 const authHeader = () => ({
   headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
 });
 
 const Admin = () => {
-  const [restaurants, setRestaurants] = useState<any[]>([]);
-  const [riders, setRiders] = useState<any[]>([]);
+  const [restaurants, setRestaurants] = useState<IRestaurant[]>([]);
+  const [riders, setRiders] = useState<IRider[]>([]);
+  const [issues, setIssues] = useState<IIssue[]>([]);
+  const [selectedIssue, setSelectedIssue] = useState<IIssue | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<
-    "restaurant" | "rider" | "verify-restaurant" | "verify-rider"
+    "restaurant" | "rider" | "verify-restaurant" | "verify-rider" | "issues"
   >("restaurant");
-  const [selectedRestaurant, setSelectedRestaurant] = useState<any>(null);
-  const [selectedRider, setSelectedRider] = useState<any>(null);
+  const [selectedRestaurant, setSelectedRestaurant] =
+    useState<IRestaurant | null>(null);
+  const [selectedRider, setSelectedRider] = useState<IRider | null>(null);
   const [verifying, setVerifying] = useState(false);
 
   const fetchData = async () => {
@@ -31,6 +35,14 @@ const Admin = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         },
       );
+      const { data: IssueData } = await axios.get(
+        `${adminService}/api/v1/issues/admin/all`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      );
+
+      setIssues(IssueData.issues);
       setRestaurants(restaurantData.restaurants);
       setRiders(ridersData.riders);
     } catch (error) {
@@ -72,6 +84,40 @@ const Admin = () => {
       setSelectedRider(null);
     } catch (error) {
       console.error("Error verifying rider:", error);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const approveIssue = async (id: string) => {
+    setVerifying(true);
+    try {
+      await axios.patch(
+        `${adminService}/api/v1/issues/admin/${id}/approve`,
+        {},
+        authHeader(),
+      );
+      setIssues((prev) => prev.filter((i) => i._id !== id));
+      setSelectedIssue(null);
+    } catch (error) {
+      console.error("Error approving issue:", error);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const rejectIssue = async (id: string) => {
+    setVerifying(true);
+    try {
+      await axios.patch(
+        `${adminService}/api/v1/issues/admin/${id}/reject`,
+        {},
+        authHeader(),
+      );
+      setIssues((prev) => prev.filter((i) => i._id !== id));
+      setSelectedIssue(null);
+    } catch (error) {
+      console.error("Error rejecting issue:", error);
     } finally {
       setVerifying(false);
     }
@@ -129,6 +175,21 @@ const Admin = () => {
           {riders.length > 0 && (
             <span className="ml-2 bg-red-500/20 text-red-400 text-xs font-mono px-1.5 py-0.5 rounded">
               {riders.length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setTab("issues")}
+          className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
+            tab === "issues"
+              ? "border-red-500 text-red-400"
+              : "border-transparent text-zinc-500 hover:text-zinc-300"
+          }`}
+        >
+          Issues
+          {issues.length > 0 && (
+            <span className="ml-2 bg-red-500/20 text-red-400 text-xs font-mono px-1.5 py-0.5 rounded">
+              {issues.length}
             </span>
           )}
         </button>
@@ -271,6 +332,228 @@ const Admin = () => {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {tab === "issues" && (
+              <div>
+                {selectedIssue ? (
+                  <div className="max-w-md max-h-md">
+                    <button
+                      onClick={() => setSelectedIssue(null)}
+                      className="text-xs text-zinc-500 hover:text-zinc-300 mb-6 flex items-center gap-1 transition-colors"
+                    >
+                      ← Back to issues
+                    </button>
+
+                    <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                      {/* Issue image */}
+                      <div className="relative h-48 bg-zinc-800">
+                        <img
+                          src={selectedIssue.imageUrl}
+                          alt="Issue"
+                          className="w-full h-full object-cover opacity-80"
+                          onError={(e) =>
+                            (e.currentTarget.src =
+                              "https://placehold.co/700x200/27272a/ef4444?text=No+Image")
+                          }
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent" />
+                        <div className="absolute bottom-4 left-5">
+                          <h2 className="text-xl font-bold text-white capitalize">
+                            {selectedIssue.issueType.replace(/_/g, " ")}
+                          </h2>
+                          <p className="text-sm text-zinc-400 mt-0.5 font-mono">
+                            #{selectedIssue.orderId}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Basic details */}
+                      <div className="p-5 grid grid-cols-2 gap-4">
+                        <Field
+                          label="Issue type"
+                          value={selectedIssue.issueType.replace(/_/g, " ")}
+                        />
+                        <Field
+                          label="Status"
+                          value={selectedIssue.status.replace(/_/g, " ")}
+                        />
+                        <Field
+                          label="Order ID"
+                          value={selectedIssue.orderId}
+                          mono
+                        />
+                        <Field
+                          label="Customer ID"
+                          value={selectedIssue.customerId}
+                          mono
+                          truncate
+                        />
+                        <Field
+                          label="Reported"
+                          value={new Date(
+                            selectedIssue.createdAt,
+                          ).toLocaleString("en-IN")}
+                          className="col-span-2"
+                        />
+                        <Field
+                          label="Description"
+                          value={selectedIssue.description}
+                          className="col-span-2"
+                        />
+                      </div>
+
+                      {/* AI result panel */}
+                      {selectedIssue.aiResult && (
+                        <div className="mx-5 mb-5 bg-[#0d0d14] border border-indigo-900/60 rounded-xl p-4">
+                          <div className="flex items-center gap-2 mb-4">
+                            <div className="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-xs">
+                              ✦
+                            </div>
+                            <span className="text-xs font-semibold tracking-widest uppercase text-indigo-400 font-mono">
+                              AI Analysis Result
+                            </span>
+                          </div>
+
+                          <div className="space-y-2">
+                            <AiRow
+                              label="Issue detected"
+                              value={
+                                selectedIssue.aiResult.issueDetected
+                                  ? "Yes"
+                                  : "No"
+                              }
+                            />
+                            <AiRow
+                              label="Severity"
+                              value={selectedIssue.aiResult.severity ?? "—"}
+                            />
+                            <AiRow
+                              label="Confidence"
+                              value={
+                                selectedIssue.aiResult.confidence != null
+                                  ? `${Math.round(selectedIssue.aiResult.confidence)}%`
+                                  : "—"
+                              }
+                              extra={
+                                selectedIssue.aiResult.confidence != null ? (
+                                  <div className="w-24 h-1 bg-indigo-950 rounded-full overflow-hidden mr-2">
+                                    <div
+                                      className="h-full bg-indigo-500 rounded-full"
+                                      style={{
+                                        width: `${Math.round(selectedIssue.aiResult.confidence * 100)}%`,
+                                      }}
+                                    />
+                                  </div>
+                                ) : null
+                              }
+                            />
+                            <AiRow
+                              label="Recommendation"
+                              value={
+                                selectedIssue.aiResult.recommendation ?? "—"
+                              }
+                            />
+                          </div>
+
+                          {selectedIssue.aiResult.reason && (
+                            <p className="text-xs text-indigo-300 mt-4 pt-4 border-t border-indigo-900/50 leading-relaxed">
+                              {selectedIssue.aiResult.reason}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="px-5 pb-5 flex gap-3">
+                        <button
+                          onClick={() => {
+                            approveIssue(selectedIssue._id);
+                          }}
+                          className="flex items-center gap-2 bg-emerald-400 text-white text-sm font-semibold px-5 py-2.5 rounded-lg"
+                        >
+                          ✓ Approve issue
+                        </button>
+                        <button
+                          onClick={() => {
+                            rejectIssue(selectedIssue._id);
+                          }}
+                          className="text-sm text-zinc-400 px-4 py-2.5 rounded-lg border border-zinc-700"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-xs text-black mb-4 uppercase tracking-widest font-mono">
+                      Pending review — {issues.length} issues
+                    </p>
+                    {issues.length === 0 ? (
+                      <div className="text-center py-20 text-zinc-600 text-sm">
+                        No pending issues
+                      </div>
+                    ) : (
+                      <div className="grid gap-3">
+                        {issues.map((issue) => (
+                          <div
+                            key={issue._id}
+                            onClick={() => setSelectedIssue(issue)}
+                            className="flex items-start gap-4 bg-zinc-900 border border-zinc-800 rounded-lg px-5 py-4 hover:border-zinc-700 transition-colors cursor-pointer"
+                          >
+                            <img
+                              src={issue.imageUrl}
+                              alt="Issue"
+                              className="w-14 h-14 rounded-md object-cover border border-zinc-700 shrink-0"
+                              onError={(e) =>
+                                (e.currentTarget.src =
+                                  "https://placehold.co/56x56/27272a/ef4444?text=!")
+                              }
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap mb-1">
+                                <p className="font-medium text-zinc-100 capitalize">
+                                  {issue.issueType.replace(/_/g, " ")}
+                                </p>
+                                {issue.aiResult?.severity && (
+                                  <span
+                                    className={`text-xs font-mono px-2 py-0.5 rounded border ${
+                                      issue.aiResult.severity === "high"
+                                        ? "bg-red-500/10 text-red-400 border-red-500/20"
+                                        : issue.aiResult.severity === "medium"
+                                          ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                                          : "bg-zinc-500/10 text-zinc-400 border-zinc-500/20"
+                                    }`}
+                                  >
+                                    {issue.aiResult.severity} severity
+                                  </span>
+                                )}
+                                {issue.aiResult?.confidence != null && (
+                                  <span className="text-xs font-mono px-2 py-0.5 rounded border bg-zinc-800 text-zinc-400 border-zinc-700">
+                                    {issue.aiResult.confidence}%
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-zinc-500 truncate">
+                                {issue.description}
+                              </p>
+                              <p className="text-xs text-zinc-600 font-mono mt-1.5">
+                                Order #{issue.orderId} ·{" "}
+                                {new Date(issue.createdAt).toLocaleDateString(
+                                  "en-IN",
+                                )}
+                              </p>
+                            </div>
+                            <button className="text-xs font-medium bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded transition-colors shrink-0 self-center">
+                              Review →
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -552,8 +835,6 @@ const Admin = () => {
   );
 };
 
-// ─── Small helper to render a labeled field ───────────────────────────────────
-
 const Field = ({
   label,
   value,
@@ -592,6 +873,26 @@ const Field = ({
         {value}
       </p>
     )}
+  </div>
+);
+
+const AiRow = ({
+  label,
+  value,
+  extra,
+}: {
+  label: string;
+  value: string;
+  extra?: React.ReactNode;
+}) => (
+  <div className="flex items-center justify-between py-1.5 border-b border-indigo-900/30 last:border-0">
+    <span className="text-xs text-indigo-500 font-mono">{label}</span>
+    <div className="flex items-center">
+      {extra}
+      <span className="text-xs text-indigo-200 font-mono capitalize">
+        {value}
+      </span>
+    </div>
   </div>
 );
 
