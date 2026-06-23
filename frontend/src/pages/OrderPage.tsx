@@ -83,7 +83,6 @@ const formatIssueType = (type: IIssue["issueType"]) =>
   type.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
 const IssueStatusCard = ({ issue }: { issue: IIssue }) => {
-  const isResolved = issue.status === "APPROVED" || issue.status === "REJECTED";
   const isPending =
     issue.status === "AI_ANALYSIS_PENDING" ||
     issue.status === "ADMIN_REVIEW_PENDING";
@@ -347,7 +346,7 @@ export const OrderPage = () => {
                     >
                       {index < currentStep ? "✓" : index + 1}
                     </div>
-                    <span className="text-[9px] text-center text-[#686b78] max-w-[40px] leading-tight">
+                    <span className="text-[9px] text-center text-[#686b78] max-w-10 leading-tight">
                       {formatStatus(step)}
                     </span>
                   </div>

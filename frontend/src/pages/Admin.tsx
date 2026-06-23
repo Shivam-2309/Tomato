@@ -360,7 +360,7 @@ const Admin = () => {
                               "https://placehold.co/700x200/27272a/ef4444?text=No+Image")
                           }
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent" />
+                        <div className="absolute inset-0 bg-linear-to-t from-zinc-900 via-transparent to-transparent" />
                         <div className="absolute bottom-4 left-5">
                           <h2 className="text-xl font-bold text-white capitalize">
                             {selectedIssue.issueType.replace(/_/g, " ")}

@@ -11,6 +11,7 @@ import Issue from "../models/Issue.js";
 import axios from "axios";
 import getBuffer from "../config/datauri.js";
 import { publishIssueCreated } from "../config/issue.publish.js";
+import { IssueStatus } from "../enums/issue-status.js";
 
 export const getPendingRestaurants = TryCatch(async (req, res) => {
   const restaurantCollection = await getRestaurantCollection();
@@ -197,10 +198,14 @@ export const getAllIssues = async (
 
     const skip = (page - 1) * limit;
 
-    const issues = await Issue.find()
+    const issues = await Issue.find({
+      status: IssueStatus.ADMIN_REVIEW_PENDING,
+    })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
+
+    console.log("ISSUES: ", issues);
 
     const total = await Issue.countDocuments();
 
